@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Taskfy - Shopify Discount Management App
 
 A Shopify app for managing discounts with panel settings and Shopify Functions integration.
@@ -36,3 +37,6 @@ Built with:
 ## License
 
 Private project 
+=======
+# taskfy
+>>>>>>> f6142f0b5745b902ca37702367d0bb24cf2c0b04

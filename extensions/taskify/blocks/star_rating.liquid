@@ -1,0 +1,1754 @@
+<!-- Discount Rewards Panel Extension with Banner -->
+
+{%- comment -%}
+Load panel settings from metafields
+{%- endcomment -%}
+{% assign panel_type = shop.metafields.taskify_panel.panel_type.value | default: 'manual' %}
+{% assign banner_color = shop.metafields.taskify_panel.banner_color.value | default: '#f4f4f4' %}
+{% assign text_color = shop.metafields.taskify_panel.text_color.value | default: '#000000' %}
+{% assign font_size = shop.metafields.taskify_panel.font_size.value | default: '1rem' %}
+{% assign top_offset = shop.metafields.taskify_panel.top_offset.value | default: '50px' %}
+
+{%- comment -%}
+Load new styling settings
+{%- endcomment -%}
+
+{% assign achieved_color = shop.metafields.taskify_panel.achieved_color.value | default: '#e8f5e8' %}
+{% assign locked_color = shop.metafields.taskify_panel.locked_color.value | default: '#f5f5f5' %}
+{% assign progress_bar_color = shop.metafields.taskify_panel.progress_bar_color.value | default: '#28a745' %}
+{% assign border_radius = shop.metafields.taskify_panel.border_radius.value | default: '15' %}
+{% assign shadow_intensity = shop.metafields.taskify_panel.shadow_intensity.value | default: 'medium' %}
+{% assign discount_spacing = shop.metafields.taskify_panel.discount_spacing.value | default: '15' %}
+{% assign row_gap = shop.metafields.taskify_panel.row_gap.value | default: '2' %}
+{% assign icon_style = shop.metafields.taskify_panel.icon_style.value | default: 'modern' %}
+{% assign row_height = shop.metafields.taskify_panel.row_height.value | default: '70' %}
+{% assign icon_size = shop.metafields.taskify_panel.icon_size.value | default: '40' %}
+{% assign row_separator_color = shop.metafields.taskify_panel.row_separator_color.value | default: '#e0e0e0' %}
+{% assign row_separator_width = shop.metafields.taskify_panel.row_separator_width.value | default: '1' %}
+{% assign scrollbar_background = shop.metafields.taskify_panel.scrollbar_background.value | default: '#f5f5f5' %}
+{% assign scrollbar_thumb_margin = shop.metafields.taskify_panel.scrollbar_thumb_margin.value | default: '0' %}
+{% assign scrollbar_width = shop.metafields.taskify_panel.scrollbar_width.value | default: '8' %}
+{% assign scrollbar_thumb_color = shop.metafields.taskify_panel.scrollbar_thumb_color.value | default: '#cccccc' %}
+{% assign scrollbar_thumb_hover_color = shop.metafields.taskify_panel.scrollbar_thumb_hover_color.value | default: '#aaaaaa' %}
+{% assign scrollbar_border_radius = shop.metafields.taskify_panel.scrollbar_border_radius.value | default: '4' %}
+{% assign scrollbar_thumb_border_radius = shop.metafields.taskify_panel.scrollbar_thumb_border_radius.value | default: '4' %}
+
+{%- comment -%}
+Load font size settings
+{%- endcomment -%}
+{% assign description_font_size = shop.metafields.taskify_panel.description_font_size.value | default: '15' %}
+{% assign minimum_amount_font_size = shop.metafields.taskify_panel.minimum_amount_font_size.value | default: '13' %}
+
+{%- comment -%}
+Load message styling settings
+{%- endcomment -%}
+{% assign status_message_background = shop.metafields.taskify_panel.status_message_background.value | default: '#e3f2fd' %}
+{% assign status_message_text_color = shop.metafields.taskify_panel.status_message_text_color.value | default: '#1565c0' %}
+{% assign cart_value_background = shop.metafields.taskify_panel.cart_value_background.value | default: '#f8f9fa' %}
+{% assign cart_value_text_color = shop.metafields.taskify_panel.cart_value_text_color.value | default: '#333333' %}
+{% assign cart_value_background_image = shop.metafields.taskify_panel.cart_value_background_image.value | default: '' %}
+{% assign highest_discount_background_image = shop.metafields.taskify_panel.highest_discount_background_image.value | default: '' %}
+{% assign cart_value_height = shop.metafields.taskify_panel.cart_value_height.value | default: '50' %}
+{% assign cart_value_font_size = shop.metafields.taskify_panel.cart_value_font_size.value | default: '16' %}
+{% assign cart_value_padding = shop.metafields.taskify_panel.cart_value_padding.value | default: '15' %}
+{% assign highest_discount_font_size = shop.metafields.taskify_panel.highest_discount_font_size.value | default: '14' %}
+{% assign highest_discount_padding = shop.metafields.taskify_panel.highest_discount_padding.value | default: '15' %}
+
+{%- comment -%}
+Load text customization settings
+{%- endcomment -%}
+{% assign achieved_text = shop.metafields.taskify_panel.achieved_text.value | default: '✅ Achieved!' %}
+{% assign missing_text = shop.metafields.taskify_panel.missing_text.value | default: '🔒 Missing' %}
+{% assign _subheader_highest = shop.metafields.taskify_panel.highest_discount_text.value %}
+{% if _subheader_highest == blank %}
+  {% assign highest_discount_text = ' ' %}
+{% else %}
+  {% assign highest_discount_text = _subheader_highest %}
+{% endif %}
+{% assign _subheader_missing = shop.metafields.taskify_panel.missing_for_discount_text.value %}
+{% if _subheader_missing == blank %}
+  {% assign missing_for_discount_text = ' ' %}
+{% else %}
+  {% assign missing_for_discount_text = _subheader_missing %}
+{% endif %}
+{% assign no_discounts_text = shop.metafields.taskify_panel.no_discounts_text.value | default: 'Add products to cart to get discounts' %}
+{% assign required_text = shop.metafields.taskify_panel.required_text.value | default: '' %}
+{% assign show_achieved_text = shop.metafields.taskify_panel.show_achieved_text.value | default: 'true' %}
+{% assign show_missing_amount = shop.metafields.taskify_panel.show_missing_amount.value | default: 'true' %}
+{% assign banner_text = shop.metafields.taskify_panel.banner_text.value | default: 'Click to see available discounts!' %}
+{% assign _header_raw = shop.metafields.taskify_panel.cart_value_text.value %}
+{% if _header_raw == blank %}
+  {% assign cart_value_text = ' ' %}
+{% else %}
+  {% assign cart_value_text = _header_raw %}
+{% endif %}
+{% assign show_cart_value = shop.metafields.taskify_panel.show_cart_value.value | default: 'true' %}
+{% assign cart_value_placeholder = shop.metafields.taskify_panel.cart_value_placeholder.value | default: '0.00' %}
+{% assign conditions_evaluation_mode = shop.metafields.taskify_panel.conditions_evaluation_mode.value | default: 'min_amount_only' %}
+
+{%- comment -%}
+Load button and interface texts
+{%- endcomment -%}
+
+{% assign close_button_text = shop.metafields.taskify_panel.close_button_text.value | default: ' ' %}
+{% assign close_button_background = shop.metafields.taskify_panel.close_button_background.value | default: 'rgba(0,0,0,0.1)' %}
+{% assign close_button_background_image = shop.metafields.taskify_panel.close_button_background_image.value | default: '' %}
+{% assign close_button_size = shop.metafields.taskify_panel.close_button_size.value | default: '25' %}
+
+{%- comment -%}
+Load circle button settings
+{%- endcomment -%}
+{% assign circle_size = shop.metafields.taskify_panel.circle_size.value | default: '60' %}
+{% assign circle_position = shop.metafields.taskify_panel.circle_position.value | default: 'bottom-right' %}
+{% assign circle_offset_x = shop.metafields.taskify_panel.circle_offset_x.value | default: '20' %}
+{% assign circle_offset_y = shop.metafields.taskify_panel.circle_offset_y.value | default: '20' %}
+{% assign circle_background_color = shop.metafields.taskify_panel.circle_background_color.value | default: '#007bff' %}
+{% assign circle_image_url = shop.metafields.taskify_panel.circle_image_url.value | default: '' %}
+{% assign panel_enabled = shop.metafields.taskify_panel.panel_enabled.value | default: 'true' %}
+
+{%- comment -%}
+Load panel responsive settings
+{%- endcomment -%}
+{% assign max_panel_width = shop.metafields.taskify_panel.max_panel_width.value | default: '1200' %}
+{% assign panel_margin = shop.metafields.taskify_panel.panel_margin.value | default: '100' %}
+
+{%- comment -%}
+Panel Visibility Settings
+{%- endcomment -%}
+{% assign panel_visibility_enabled = shop.metafields.taskify_panel.panel_visibility_enabled.value | default: 'false' %}
+{% assign panel_visibility_logged_in = shop.metafields.taskify_panel.panel_visibility_logged_in.value | default: 'any' %}
+{% assign _panel_visibility_countries_raw = shop.metafields.taskify_panel.panel_visibility_countries.value %}
+{% assign _panel_visibility_countries = _panel_visibility_countries_raw | default: '[]' %}
+{% assign panel_visibility_countries_array = _panel_visibility_countries | parse_json %}
+{% assign _panel_visibility_conditions_raw = shop.metafields.taskify_panel.panel_visibility_conditions.value %}
+{% assign panel_visibility_conditions = _panel_visibility_conditions_raw | default: '[]' | parse_json %}
+
+{%- comment -%}
+Load footer settings
+{%- endcomment -%}
+{% assign show_footer = shop.metafields.taskify_panel.show_footer.value | default: 'true' %}
+{% assign show_highest_discount_message = shop.metafields.taskify_panel.show_highest_discount_message.value | default: 'true' %}
+{% assign footer_background = shop.metafields.taskify_panel.footer_background.value | default: '#f8f9fa' %}
+{% assign footer_height = shop.metafields.taskify_panel.footer_height.value | default: '50' %}
+{% assign _footer_raw = shop.metafields.taskify_panel.footer_content.value %}
+{% if _footer_raw == blank %}
+  {% assign footer_content = ' ' %}
+{% else %}
+  {% assign footer_content = _footer_raw %}
+{% endif %}
+{% assign footer_background_image = shop.metafields.taskify_panel.footer_background_image.value | default: '' %}
+{% assign footer_font_size = shop.metafields.taskify_panel.footer_font_size.value | default: '12' %}
+{% assign header_text_align = shop.metafields.taskify_panel.header_text_align.value | default: 'center' %}
+{% assign subheader_text_align = shop.metafields.taskify_panel.subheader_text_align.value | default: 'center' %}
+{% assign footer_text_align = shop.metafields.taskify_panel.footer_text_align.value | default: 'center' %}
+
+{%- comment -%}
+Load panel height setting - Admin only control
+{%- endcomment -%}
+{% assign panel_height = shop.metafields.taskify_panel.panel_height.value | default: '300' %}
+{% assign remaining_amount_height = shop.metafields.taskify_panel.remaining_amount_height.value | default: '60' %}
+
+{%- comment -%}
+Load font settings
+{%- endcomment -%}
+{% assign header_text_font = shop.metafields.taskify_panel.header_text_font.value | default: 'Arial, sans-serif' %}
+{% assign subheader_text_font = shop.metafields.taskify_panel.subheader_text_font.value | default: 'Arial, sans-serif' %}
+{% assign footer_text_font = shop.metafields.taskify_panel.footer_text_font.value | default: 'Arial, sans-serif' %}
+{% assign achieved_text_font = shop.metafields.taskify_panel.achieved_text_font.value | default: 'Arial, sans-serif' %}
+{% assign missing_text_font = shop.metafields.taskify_panel.missing_text_font.value | default: 'Arial, sans-serif' %}
+
+{%- comment -%}
+Load error messages
+{%- endcomment -%}
+{% assign error_no_discounts_text = shop.metafields.taskify_panel.error_no_discounts_text.value | default: 'No available discounts' %}
+
+{% assign error_loading_text = shop.metafields.taskify_panel.error_loading_text.value | default: 'Loading discount information...' %}
+
+
+
+
+{%- comment -%}
+Load border glow settings
+{%- endcomment -%}
+{% assign border_glow = shop.metafields.taskify_panel.border_glow.value | default: 'none' %}
+{% assign border_glow_size = shop.metafields.taskify_panel.border_glow_size.value | default: '10' %}
+{% assign border_glow_color = shop.metafields.taskify_panel.border_glow_color.value | default: '#007bff' %}
+{% assign border_glow_pulse = shop.metafields.taskify_panel.border_glow_pulse.value | default: 'false' %}
+{% assign border_glow_speed = shop.metafields.taskify_panel.border_glow_speed.value | default: '2' %}
+{% assign border_glow_intensity = shop.metafields.taskify_panel.border_glow_intensity.value | default: 'medium' %}
+
+{%- comment -%}
+Load row interaction settings
+{%- endcomment -%}
+{% assign default_locked_icon = shop.metafields.taskify_panel.default_locked_icon.value | default: '' %}
+{% assign row_hover_effect = shop.metafields.taskify_panel.row_hover_effect.value | default: 'none' %}
+{% assign row_hover_color = shop.metafields.taskify_panel.row_hover_color.value | default: '#f8f9fa' %}
+{% assign row_hover_scale = shop.metafields.taskify_panel.row_hover_scale.value | default: '1.02' %}
+
+{%- comment -%}
+Load discounts - always try to load from metafields first
+{%- endcomment -%}
+{% assign discounts_metafield = shop.metafields.taskify_discounts.active_discounts.value %}
+{% if discounts_metafield %}
+  {% assign discounts = discounts_metafield %}
+{% else %}
+  {% assign discounts = '' %}
+{% endif %}
+
+{%- comment -%}
+Load layout & navigation options
+{%- endcomment -%}
+{% assign discount_order = shop.metafields.taskify_panel.discount_order.value | default: 'desc' %}
+
+
+<style>
+  /* CSS Variables for fonts */
+  :root {
+    --taskify-header-font: {{ header_text_font }};
+    --taskify-subheader-font: {{ subheader_text_font }};
+    --taskify-footer-font: {{ footer_text_font }};
+    --taskify-achieved-font: {{ achieved_text_font }};
+    --taskify-missing-font: {{ missing_text_font }};
+  }
+
+  /* Circle button styles */
+  .taskify-circle-button {
+    position: fixed;
+    {% case circle_position %}
+      {% when 'bottom-right' %}
+        bottom: {{ circle_offset_y }}px;
+        right: {{ circle_offset_x }}px;
+      {% when 'bottom-left' %}
+        bottom: {{ circle_offset_y }}px;
+        left: {{ circle_offset_x }}px;
+      {% when 'top-right' %}
+        top: {{ circle_offset_y }}px;
+        right: {{ circle_offset_x }}px;
+      {% when 'top-left' %}
+        top: {{ circle_offset_y }}px;
+        left: {{ circle_offset_x }}px;
+    {% endcase %}
+    width: {{ circle_size }}px;
+    height: {{ circle_size }}px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+    {% if circle_image_url != blank %}
+      background-image: url('{{ circle_image_url }}');
+      background-size: cover;
+      background-position: center;
+    {% else %}
+      background-color: {{ circle_background_color }};
+    {% endif %}
+  }
+
+  .taskify-circle-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  }
+
+  .taskify-circle-button-icon {
+    color: white;
+    font-size: {% if circle_size %}{{ circle_size | divided_by: 3 }}px{% else %}20px{% endif %};
+    font-weight: bold;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  }
+  
+  .taskify-circle-hidden {
+    display: none;
+  }
+  
+  /* Legacy styles - kept for compatibility */
+  .progressbar-panel, .progressbar-text, .progressbar-close, .progressbar-hidden {
+    display: none !important;
+  }
+
+  /* Overlay background */
+  .discount-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    z-index: 100000;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Main panel container */
+  .discount-panel {
+    width: calc(100vw - {{ panel_margin | times: 2 }}px);
+    max-width: {{ max_panel_width }}px;
+    max-height: 80vh;
+    background-color: white;
+    border-radius: {{ border_radius }}px;
+    
+    /* Border glow effects */
+    {% case border_glow %}
+      {% when 'soft' %}
+        {% assign glow_opacity = 0.3 %}
+        {% case border_glow_intensity %}
+          {% when 'light' %}
+            {% assign glow_opacity = 0.2 %}
+          {% when 'strong' %}
+            {% assign glow_opacity = 0.4 %}
+          {% when 'maximum' %}
+            {% assign glow_opacity = 0.6 %}
+        {% endcase %}
+        box-shadow: 0 0 {{ border_glow_size }}px rgba(0,123,255,{{ glow_opacity }}), 0 8px 25px rgba(0,0,0,0.15);
+      {% when 'strong' %}
+        {% assign glow_opacity = 0.5 %}
+        {% case border_glow_intensity %}
+          {% when 'light' %}
+            {% assign glow_opacity = 0.3 %}
+          {% when 'strong' %}
+            {% assign glow_opacity = 0.6 %}
+          {% when 'maximum' %}
+            {% assign glow_opacity = 0.8 %}
+        {% endcase %}
+        box-shadow: 0 0 {{ border_glow_size }}px rgba(0,123,255,{{ glow_opacity }}), 0 8px 25px rgba(0,0,0,0.15);
+      {% when 'neon' %}
+        {% assign glow_opacity = 0.6 %}
+        {% case border_glow_intensity %}
+          {% when 'light' %}
+            {% assign glow_opacity = 0.4 %}
+          {% when 'strong' %}
+            {% assign glow_opacity = 0.7 %}
+          {% when 'maximum' %}
+            {% assign glow_opacity = 0.9 %}
+        {% endcase %}
+        box-shadow: 0 0 {{ border_glow_size }}px rgba(0,255,255,{{ glow_opacity }}), 0 8px 25px rgba(0,0,0,0.15);
+      {% when 'custom' %}
+        {% assign glow_opacity = 0.4 %}
+        {% case border_glow_intensity %}
+          {% when 'light' %}
+            {% assign glow_opacity = 0.3 %}
+          {% when 'strong' %}
+            {% assign glow_opacity = 0.5 %}
+          {% when 'maximum' %}
+            {% assign glow_opacity = 0.7 %}
+        {% endcase %}
+        box-shadow: 0 0 {{ border_glow_size }}px {{ border_glow_color }}, 0 8px 25px rgba(0,0,0,0.15);
+        filter: drop-shadow(0 0 {{ border_glow_size | divided_by: 2 }}px {{ border_glow_color }});
+      {% else %}
+        {% case shadow_intensity %}
+          {% when 'none' %}
+            box-shadow: none;
+          {% when 'light' %}
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+          {% when 'strong' %}
+            box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+          {% else %}
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        {% endcase %}
+    {% endcase %}
+    
+    /* Pulse animation */
+    {% if border_glow_pulse == 'true' and border_glow != 'none' %}
+      animation: borderGlowPulse {{ border_glow_speed }}s ease-in-out infinite alternate;
+    {% endif %}
+    
+    position: relative;
+    font-family: Arial, sans-serif;
+  
+  }
+  
+  /* Responsive adjustments for small screens */
+  @media (max-width: 480px) {
+    .discount-panel {
+      width: calc(100vw - 40px);
+      min-width: 320px;
+    }
+  }
+  
+  /* Close button */
+  .close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: {{ close_button_size }}px;
+    height: {{ close_button_size }}px;
+    {% if close_button_background_image != '' %}
+      background-image: url('{{ close_button_background_image }}');
+      background-size: cover;
+      background-position: center;
+      background-color: transparent;
+    {% else %}
+      background-color: {{ close_button_background }};
+    {% endif %}
+    border: none;
+    border-radius: 50%;
+    font-size: 16px;
+    cursor: pointer;
+    color: #666;
+    z-index: 100;
+    transition: background 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+  }
+  
+  .close-button:hover {
+    {% if close_button_background_image != '' %}
+      filter: brightness(0.9);
+    {% else %}
+      background-color: rgba(0,0,0,0.2);
+    {% endif %}
+  }
+  
+  /* Cart total display */
+  .cart-total {
+    padding: {{ cart_value_padding }}px 25px; /* Dopasuj do pełnego preview aplikacji */
+    font-size: {{ cart_value_font_size }}px; /* Dopasuj do pełnego preview aplikacji */
+    text-align: {{ header_text_align }};
+    font-weight: bold;
+    color: {{ cart_value_text_color }};
+    {% if cart_value_background_image != '' %}
+      background-image: url('{{ cart_value_background_image }}');
+      background-size: cover;
+      background-position: center;
+    {% else %}
+      background-color: {{ cart_value_background }};
+    {% endif %}
+    border-top-left-radius: {{ border_radius }}px;
+    border-top-right-radius: {{ border_radius }}px;
+    font-family: var(--taskify-header-font);
+    height: {{ cart_value_height }}px;
+    display: flex;
+    align-items: center;
+    justify-content: {% if header_text_align == 'left' %}flex-start{% elsif header_text_align == 'right' %}flex-end{% else %}center{% endif %};
+  }
+  
+  /* Remaining amount display */
+  .remaining-amount {
+    padding: {{ highest_discount_padding }}px 25px; /* Dopasuj do aplikacji */
+    font-size: {{ highest_discount_font_size }}px;
+    text-align: {{ subheader_text_align }};
+    {% if highest_discount_background_image != '' %}
+      background-image: url('{{ highest_discount_background_image }}');
+      background-size: cover;
+      background-position: center;
+    {% else %}
+      background-color: {{ status_message_background }};
+    {% endif %}
+    font-weight: bold;
+    color: {{ status_message_text_color }};
+    height: {{ remaining_amount_height }}px;
+    display: flex;
+    align-items: center;
+    justify-content: {% if subheader_text_align == 'left' %}flex-start{% elsif subheader_text_align == 'right' %}flex-end{% else %}center{% endif %};
+    box-sizing: border-box;
+    font-family: var(--taskify-subheader-font);
+    {% if show_cart_value != 'true' %}
+      border-top-left-radius: {{ border_radius }}px;
+      border-top-right-radius: {{ border_radius }}px;
+    {% endif %}
+  }
+  
+
+  
+  /* Rewards panel */
+  .reward-panel {
+    width: 100%;
+    height: {{ panel_height }}px;
+    overflow-y: auto;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0px; /* Usuń gap, użyj border zamiast tego */
+    background-color: white;
+    {% if show_footer == 'true' %}
+      /* No bottom radius when footer is shown */
+    {% else %}
+      border-bottom-left-radius: {{ border_radius }}px;
+      border-bottom-right-radius: {{ border_radius }}px;
+    {% endif %}
+    {% if show_cart_value != 'true' and show_highest_discount_message != 'true' %}
+      /* If no header and no subheader, list becomes the top cap */
+      border-top-left-radius: {{ border_radius }}px;
+      border-top-right-radius: {{ border_radius }}px;
+    {% endif %}
+  }
+  
+  /* Custom scrollbar styling - FORCE override any parent colors */
+  .reward-panel::-webkit-scrollbar {
+    width: {{ scrollbar_width }}px !important;
+    background: transparent !important;
+    background-color: transparent !important;
+  }
+  
+  .reward-panel::-webkit-scrollbar-track {
+    background: {{ scrollbar_background }} !important;
+    background-color: {{ scrollbar_background }} !important;
+    border-radius: {{ scrollbar_border_radius }}px !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+  
+  .reward-panel::-webkit-scrollbar-thumb {
+    background: {{ scrollbar_thumb_color }} !important;
+    background-color: {{ scrollbar_thumb_color }} !important;
+    border-radius: {{ scrollbar_thumb_border_radius }}px !important;
+    border: none !important;
+    {% if scrollbar_thumb_margin != '0' %}
+    border-left: {{ scrollbar_thumb_margin }}px solid {{ scrollbar_background }} !important;
+    border-right: {{ scrollbar_thumb_margin }}px solid {{ scrollbar_background }} !important;
+    {% endif %}
+  }
+  
+  .reward-panel::-webkit-scrollbar-thumb:hover {
+    background: {{ scrollbar_thumb_hover_color }} !important;
+    background-color: {{ scrollbar_thumb_hover_color }} !important;
+  }
+  
+  .reward-panel::-webkit-scrollbar-button {
+    display: none !important;
+  }
+  
+  .reward-panel::-webkit-scrollbar-corner {
+    background: {{ footer_background }} !important;
+    background-color: {{ footer_background }} !important;
+  }
+  
+  /* Individual discount level */
+  .discount-level {
+    display: flex;
+    align-items: center;
+    padding: {{ discount_spacing }}px 25px; /* Dopasuj do pełnego preview aplikacji */
+    min-height: {{ row_height }}px;
+    transition: all 0.3s ease;
+    position: relative;
+    box-sizing: border-box;
+    background-color: white; /* Domyślny kolor, zostanie nadpisany przez achieved/locked */
+  }
+  
+  /* Configurable hover effects */
+  {% if row_hover_effect == 'color' %}
+  .discount-level:hover {
+    background-color: {{ row_hover_color }} !important;
+  }
+  {% elsif row_hover_effect == 'scale' %}
+  .discount-level:hover {
+    transform: scale({{ row_hover_scale }});
+  }
+  {% elsif row_hover_effect == 'color_scale' %}
+  .discount-level:hover {
+    background-color: {{ row_hover_color }} !important;
+    transform: scale({{ row_hover_scale }});
+  }
+  {% elsif row_hover_effect == 'glow' %}
+  .discount-level:hover {
+    box-shadow: 0 0 15px rgba(0, 123, 255, 0.3);
+  }
+  {% endif %}
+  
+  .discount-level:not(:last-child) {
+    border-bottom: {{ row_separator_width }}px solid {{ row_separator_color }};
+  }
+  
+  .discount-level:last-child {
+    border-bottom: none;
+  }
+  
+  /* Level icon */
+  .level-icon {
+    width: {{ icon_size }}px;
+    height: {{ icon_size }}px;
+    margin-right: 20px; /* Dopasuj do aplikacji */
+    border-radius: 50%;
+    background-color: {{ progress_bar_color }};
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: {{ icon_size | divided_by: 2.5 | round }}px; /* Podobny do aplikacji: 0.6 * iconSize */
+    transition: all 0.3s ease;
+    
+    flex-shrink: 0; /* Zapobiega zmniejszaniu */
+  }
+  
+  .level-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: inherit;
+  }
+  
+  /* Remove background when icon has image */
+  .level-icon.has-image {
+    background-color: transparent !important;
+  }
+  
+  .level-icon.has-image.achieved {
+    background-color: transparent !important;
+  }
+  
+  .level-icon.has-image.locked {
+    background-color: transparent !important;
+  }
+  
+  .level-icon.achieved {
+    background-color: #28a745; /* Zielony dla osiągniętych, jak w aplikacji */
+    color: white;
+  }
+  
+  .level-icon.locked {
+    background-color: #6c757d; /* Szary dla zablokowanych, jak w aplikacji */
+    color: white;
+  }
+  
+  /* Level text */
+  .level-text {
+    flex: 1;
+    line-height: 1.4;
+  }
+  
+  .level-title {
+    font-weight: bold;
+    color: #333;
+    font-size: {{ description_font_size }}px;
+  }
+
+  /* Apply font to achieved discount titles */
+  .discount-level.achieved .level-title {
+    font-family: var(--taskify-achieved-font);
+  }
+
+  /* Apply font to locked discount titles */
+  .discount-level.locked .level-title {
+    font-family: var(--taskify-missing-font);
+  }
+  
+  .level-requirement {
+    color: #666;
+    font-size: {{ minimum_amount_font_size }}px;
+  }
+  
+  .level-requirement.locked {
+    color: #999;
+    font-style: italic;
+  }
+  
+  /* Dodaj style dla locked tekstu tytułu */
+  .discount-level.locked .level-title {
+    opacity: 0.7;
+  }
+  
+  /* Progress indicator for locked discounts */
+  .progress-indicator {
+    position: absolute;
+    right: 25px; /* Dopasuj do pełnego preview aplikacji */
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    color: #999;
+    font-weight: bold;
+    opacity: 0.7; /* Dodaj przezroczystość jak w aplikacji */
+  }
+  
+  /* Progress bar */
+  .progress-bar {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 8px;
+    background: {{ progress_bar_color }} !important;
+    transition: height 1s ease-in-out;
+    z-index: 1;
+    height: 0;
+    border-bottom-right-radius: {{ border_radius }}px;
+  }
+  
+  .hidden {
+    display: none !important;
+  }
+
+  body.modal-active {
+  
+  }
+  
+  /* Panel footer styles */
+  .panel-footer {
+    padding: 10px 25px; /* Dopasuj do pełnego preview aplikacji */
+    {% if show_footer == 'true' %}
+      display: flex;
+      align-items: center;
+      justify-content: {% if footer_text_align == 'left' %}flex-start{% elsif footer_text_align == 'right' %}flex-end{% else %}center{% endif %};
+      text-align: {{ footer_text_align }};
+      font-size: {{ footer_font_size }}px; /* Dopasuj do pełnego preview aplikacji */
+      color: #666666;
+      {% if footer_background_image != '' %}
+        background-image: url('{{ footer_background_image }}');
+        background-size: cover;
+        background-position: center;
+      {% else %}
+        background-color: {{ footer_background }};
+      {% endif %}
+      height: {{ footer_height }}px;
+      border-bottom-left-radius: {{ border_radius }}px;
+      border-bottom-right-radius: {{ border_radius }}px;
+      font-family: var(--taskify-footer-font);
+    {% else %}
+      display: none;
+    {% endif %}
+  }
+  
+  /* Responsive design */
+  @media (max-width: 768px) {
+    .discount-panel {
+      width: 95vw;
+   
+    }
+    
+    .progressbar-panel {
+      padding: 0.5rem 1rem;
+    }
+  }
+  
+  /* Override styles for achieved and locked states - these must be at the end for proper specificity */
+  .discount-level.achieved {
+    background-color: {{ achieved_color }} !important;
+    border-left: 4px solid {{ progress_bar_color }} !important;
+  }
+  
+  .discount-level.locked {
+    background-color: {{ locked_color }} !important;
+    border-left: 4px solid #cccccc !important;
+  }
+  
+  /* Apply opacity only to content, not the background */
+  .discount-level.locked .level-text {
+    opacity: 0.7; /* Tekst ma być przezroczysty jak w aplikacji */
+  }
+  
+  /* Border glow pulse animation */
+  @keyframes borderGlowPulse {
+    0% { 
+      filter: brightness(1);
+      transform: scale(1);
+    }
+    100% { 
+      filter: brightness(1.2);
+      transform: scale(1.02);
+    }
+  }
+</style>
+
+
+
+<!-- Overlay and panel -->
+<div class="discount-overlay" id="discountOverlay">
+  <div class="discount-panel">
+    <button class="close-button" id="closeButton">{{ close_button_text }}</button>
+    
+    {% if show_cart_value == 'true' %}
+    <div class="cart-total" id="cartTotal">
+      {% assign cart_display_text = cart_value_text %}
+      {% assign cart_placeholder = '{cart}' %}
+      {% if cart.total_price %}
+        {% assign formatted_price = cart.total_price | money %}
+        {{ cart_display_text | replace: cart_placeholder, formatted_price }}
+      {% else %}
+        {% assign zero_price = '0.00' | append: ' ' | append: shop.currency %}
+        {{ cart_display_text | replace: cart_placeholder, zero_price }}
+      {% endif %}
+    </div>
+    {% endif %}
+    
+    {% if show_highest_discount_message == 'true' %}
+    <div class="remaining-amount" id="remainingAmount">
+      {{ error_loading_text }}
+    </div>
+    {% endif %}
+    
+
+    
+    <div class="reward-panel" id="rewardPanel">
+      <!-- Discounts will be loaded here -->
+      <div class="discount-level">
+        <div class="level-icon">📦</div>
+        <div class="level-text">
+          <div class="level-title">Loading discounts...</div>
+          <div class="level-requirement">Reading configuration</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Panel Footer -->
+    {% if show_footer == 'true' %}
+    <div class="panel-footer" id="panelFooter">
+      {{ footer_content }}
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Create and insert circle button directly into body
+  const circleButton = document.createElement('button');
+  circleButton.id = 'taskify-circle-button';
+  circleButton.className = 'taskify-circle-button';
+  circleButton.title = '{{ banner_text }}';
+  circleButton.setAttribute('aria-label', 'Show discount rewards');
+  
+  // Set position and size from settings
+  const circleSize = '{{ circle_size }}';
+  const circlePosition = '{{ circle_position }}';
+  const circleOffsetX = '{{ circle_offset_x }}';
+  const circleOffsetY = '{{ circle_offset_y }}';
+  const circleBackgroundColor = '{{ circle_background_color }}';
+  const circleImageUrl = '{{ circle_image_url }}';
+  
+  // Apply base styles
+  circleButton.style.position = 'fixed';
+  circleButton.style.width = circleSize + 'px';
+  circleButton.style.height = circleSize + 'px';
+  circleButton.style.borderRadius = '50%';
+  circleButton.style.border = 'none';
+  circleButton.style.cursor = 'pointer';
+  circleButton.style.zIndex = '99999';
+  circleButton.style.display = 'flex';
+  circleButton.style.alignItems = 'center';
+  circleButton.style.justifyContent = 'center';
+  circleButton.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.15)';
+  circleButton.style.transition = 'all 0.3s ease';
+  
+  // Apply background
+  if (circleImageUrl && circleImageUrl.trim() !== '') {
+    circleButton.style.backgroundImage = `url('${circleImageUrl}')`;
+    circleButton.style.backgroundSize = 'cover';
+    circleButton.style.backgroundPosition = 'center';
+  } else {
+    circleButton.style.backgroundColor = circleBackgroundColor;
+  }
+  
+  // Apply positioning
+  console.log('Applying position:', circlePosition);
+  switch(circlePosition) {
+    case 'bottom-right':
+      circleButton.style.bottom = circleOffsetY + 'px';
+      circleButton.style.right = circleOffsetX + 'px';
+      circleButton.style.top = 'auto';
+      circleButton.style.left = 'auto';
+      break;
+    case 'bottom-left':
+      circleButton.style.bottom = circleOffsetY + 'px';
+      circleButton.style.left = circleOffsetX + 'px';
+      circleButton.style.top = 'auto';
+      circleButton.style.right = 'auto';
+      break;
+    case 'top-right':
+      circleButton.style.top = circleOffsetY + 'px';
+      circleButton.style.right = circleOffsetX + 'px';
+      circleButton.style.bottom = 'auto';
+      circleButton.style.left = 'auto';
+      break;
+    case 'top-left':
+      circleButton.style.top = circleOffsetY + 'px';
+      circleButton.style.left = circleOffsetX + 'px';
+      circleButton.style.bottom = 'auto';
+      circleButton.style.right = 'auto';
+      break;
+    default:
+      // Default to bottom-right
+      circleButton.style.bottom = circleOffsetY + 'px';
+      circleButton.style.right = circleOffsetX + 'px';
+      circleButton.style.top = 'auto';
+      circleButton.style.left = 'auto';
+  }
+  
+  // Add icon (empty for clean look)
+  const icon = document.createElement('span');
+  icon.className = 'taskify-circle-button-icon';
+  icon.style.cssText = `
+    color: white;
+    font-size: ${Math.round(circleSize / 3)}px;
+    font-weight: bold;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  `;
+  icon.textContent = '';
+  circleButton.appendChild(icon);
+  
+  // Panel visibility evaluation
+  function shouldShowPanel() {
+    // If disabled globally
+    if ('{{ panel_enabled }}' !== 'true') return false;
+    // If visibility rules disabled
+    if ('{{ panel_visibility_enabled }}' !== 'true') return true;
+    // Logged in/out check — Shopify Liquid exposes customer object
+    var loginRule = '{{ panel_visibility_logged_in }}';
+    {% if customer %}
+    var isLoggedIn = true;
+    {% else %}
+    var isLoggedIn = false;
+    {% endif %}
+    if (loginRule === 'logged_in' && !isLoggedIn) return false;
+    if (loginRule === 'logged_out' && isLoggedIn) return false;
+    // Countries check — use request.country if available (Shopify markets)
+    var allowedCountries = {{ panel_visibility_countries_array | json }};
+    if (Array.isArray(allowedCountries) && allowedCountries.length > 0) {
+      var countryCode = '{{ request.country.iso_code | default: localization.country.iso_code | default: '' | upcase }}';
+      countryCode = countryCode ? String(countryCode).toUpperCase() : '';
+      if (countryCode && allowedCountries.indexOf(countryCode) === -1) return false;
+    }
+    // Evaluate additional conditions
+    try {
+      var conds = {{ panel_visibility_conditions | json }};
+      if (Array.isArray(conds) && conds.length > 0) {
+        // Pre-fetch cart data if needed (sync branch relies on window vars that are set later)
+        // For initial check, do a lightweight sync pass using Liquid-provided values
+        var cartItemCount = {{ cart.item_count | default: 0 }};
+        var cartTotal = {{ cart.total_price | divided_by: 100 | default: 0 }};
+        var customerTagString = '{% if customer %}{{ customer.tags | join: "," }}{% else %}{% endif %}';
+        var customerTags = customerTagString ? customerTagString.split(',').filter(Boolean) : [];
+
+        var ordersCount = {{ customer.orders_count | default: 0 }};
+        for (var i = 0; i < conds.length; i++) {
+          var c = conds[i] || {};
+          var type = c.type;
+          var op = c.operator;
+          var val = (c.value || '').toString();
+
+          switch (type) {
+            case 'cart_total': {
+              var num = parseFloat(val || '0');
+              if (op === 'greater_than_or_equal' && !(cartTotal >= num)) return false;
+              if (op === 'less_than_or_equal' && !(cartTotal <= num)) return false;
+              if (op === 'greater_than' && !(cartTotal > num)) return false;
+              if (op === 'less_than' && !(cartTotal < num)) return false;
+              if (op === 'equals' && !(cartTotal === num)) return false;
+              if (op === 'not_equals' && !(cartTotal !== num)) return false;
+              break;
+            }
+            case 'cart_quantity': {
+              var q = parseFloat(val || '0');
+              if (op === 'greater_than_or_equal' && !(cartItemCount >= q)) return false;
+              if (op === 'less_than_or_equal' && !(cartItemCount <= q)) return false;
+              if (op === 'greater_than' && !(cartItemCount > q)) return false;
+              if (op === 'less_than' && !(cartItemCount < q)) return false;
+              if (op === 'equals' && !(cartItemCount === q)) return false;
+              if (op === 'not_equals' && !(cartItemCount !== q)) return false;
+              break;
+            }
+            case 'cart_weight':
+              // Needs cart.js; evaluate later
+              break;
+            case 'order_count': {
+              var oc = parseFloat(val || '0');
+              if (op === 'greater_than_or_equal' && !(ordersCount >= oc)) return false;
+              if (op === 'less_than_or_equal' && !(ordersCount <= oc)) return false;
+              if (op === 'greater_than' && !(ordersCount > oc)) return false;
+              if (op === 'less_than' && !(ordersCount < oc)) return false;
+              if (op === 'equals' && !(ordersCount === oc)) return false;
+              if (op === 'not_equals' && !(ordersCount !== oc)) return false;
+              break;
+            }
+            case 'country': {
+              var allowed = val.split(',').map(function(x){return x.trim().toUpperCase();}).filter(Boolean);
+              if (allowed.length > 0) {
+                var cc = '{{ request.country.iso_code | default: localization.country.iso_code | default: '' | upcase }}';
+                if (op === 'equals' && allowed.indexOf(cc) === -1) return false;
+                if (op === 'not_equals' && allowed.indexOf(cc) !== -1) return false;
+              }
+              break;
+            }
+            case 'postal_code': {
+              var pc = '{{ customer.default_address.zip | default: '' }}';
+              var list = val.split(',').map(function(x){return x.trim();}).filter(Boolean);
+              var match = list.some(function(pattern){
+                if (!pc) return false;
+                if (pattern.indexOf('*') >= 0) {
+                  var re = new RegExp('^' + pattern.replace(/\*/g, '.*') + '$');
+                  return re.test(pc);
+                }
+                return pc === pattern;
+              });
+              if (op === 'contains' && !match) return false;
+              if (op === 'not_contains' && match) return false;
+              if (op === 'equals' && !match) return false;
+              if (op === 'not_equals' && match) return false;
+              break;
+            }
+            case 'customer_tags': {
+              var needed = val.split(',').map(function(x){return x.trim();}).filter(Boolean);
+              var hasAny = needed.some(function(tag){ return customerTags.indexOf(tag) !== -1; });
+              if (op === 'contains' && !hasAny) return false;
+              if (op === 'not_contains' && hasAny) return false;
+              break;
+            }
+            case 'customer_logged_in': {
+              if (op === 'is_logged_in' && !isLoggedIn) return false;
+              if (op === 'is_not_logged_in' && isLoggedIn) return false;
+              break;
+            }
+            case 'cart_contains':
+              // Full cart scan done after /cart.js load; allow for now
+              break;
+          }
+        }
+      }
+    } catch (e) { /* ignore */ }
+    return true;
+  }
+
+  // Insert button into body when visible
+  var __taskifyPanelInserted = false;
+  if (shouldShowPanel()) {
+    document.body.appendChild(circleButton);
+    __taskifyPanelInserted = true;
+  }
+
+  function dynamicVisibilityCheck(cartData) {
+    try {
+      var conds = {{ panel_visibility_conditions | json }};
+      if (!Array.isArray(conds) || conds.length === 0) return true;
+      var itemCount = (cartData && typeof cartData.item_count === 'number') ? cartData.item_count : 0;
+      var totalWeight = (cartData && typeof cartData.total_weight === 'number') ? cartData.total_weight : 0; // grams
+      var items = Array.isArray(cartData?.items) ? cartData.items : [];
+      var productIdsInCart = items.map(function(it){ return String(it.product_id || ''); }).filter(Boolean);
+
+      for (var i = 0; i < conds.length; i++) {
+        var c = conds[i] || {};
+        var type = c.type;
+        var op = c.operator;
+        var val = (c.value || '').toString();
+
+        if (type === 'cart_quantity') {
+          var q = parseFloat(val || '0');
+          if (op === 'greater_than_or_equal' && !(itemCount >= q)) return false;
+          if (op === 'less_than_or_equal' && !(itemCount <= q)) return false;
+          if (op === 'greater_than' && !(itemCount > q)) return false;
+          if (op === 'less_than' && !(itemCount < q)) return false;
+          if (op === 'equals' && !(itemCount === q)) return false;
+          if (op === 'not_equals' && !(itemCount !== q)) return false;
+        }
+
+        if (type === 'cart_weight') {
+          var w = parseFloat(val || '0');
+          if (op === 'greater_than_or_equal' && !(totalWeight >= w)) return false;
+          if (op === 'less_than_or_equal' && !(totalWeight <= w)) return false;
+          if (op === 'greater_than' && !(totalWeight > w)) return false;
+          if (op === 'less_than' && !(totalWeight < w)) return false;
+          if (op === 'equals' && !(totalWeight === w)) return false;
+          if (op === 'not_equals' && !(totalWeight !== w)) return false;
+        }
+
+        if (type === 'cart_contains') {
+          var idList = val.split(',').map(function(x){ return x.trim(); }).filter(Boolean);
+          if (idList.length > 0) {
+            var inSet = function(id){ return productIdsInCart.indexOf(id) !== -1; };
+            if (op === 'only_these_products') {
+              if (productIdsInCart.length === 0) return false;
+              var allAreFromList = productIdsInCart.every(function(id){ return inSet(id); });
+              if (!allAreFromList) return false;
+            }
+            if (op === 'at_least_one_of_these') {
+              var anyMatch = idList.some(function(id){ return inSet(id); });
+              if (!anyMatch) return false;
+            }
+            if (op === 'all_of_these_products') {
+              var allPresent = idList.every(function(id){ return inSet(id); });
+              if (!allPresent) return false;
+            }
+            if (op === 'none_of_these_products') {
+              var nonePresent = idList.every(function(id){ return !inSet(id); });
+              if (!nonePresent) return false;
+            }
+            // Collection-based operators are skipped in visibility for now
+          }
+        }
+      }
+      return true;
+    } catch(e) { return true; }
+  }
+
+  // --- Reactive visibility re-checks on cart changes ---
+  var __taskifyVisibilityRecheckQueued = false;
+  function scheduleVisibilityRecheck(delayMs) {
+    if (__taskifyVisibilityRecheckQueued) return;
+    __taskifyVisibilityRecheckQueued = true;
+    setTimeout(async function() {
+      try {
+        const response = await fetch('/cart.js');
+        if (response.ok) {
+          const cartData = await response.json();
+          const visibleNow = dynamicVisibilityCheck(cartData);
+          if (!visibleNow && __taskifyPanelInserted) {
+            try { circleButton.remove(); } catch (e) {}
+            __taskifyPanelInserted = false;
+          } else if (visibleNow && !__taskifyPanelInserted) {
+            document.body.appendChild(circleButton);
+            __taskifyPanelInserted = true;
+          }
+        }
+      } catch (e) { /* ignore */ }
+      __taskifyVisibilityRecheckQueued = false;
+    }, typeof delayMs === 'number' ? delayMs : 200);
+  }
+
+  function isCartUrlLike(url) {
+    try {
+      var u = new URL(url, window.location.origin);
+      return (/^\/cart(\/|\.|$)/).test(u.pathname);
+    } catch (e) {
+      return typeof url === 'string' && url.indexOf('/cart') !== -1;
+    }
+  }
+
+  // Hook fetch
+  (function() {
+    if (!window.fetch) return;
+    var originalFetch = window.fetch;
+    window.fetch = function(input, init) {
+      var url = (typeof input === 'string') ? input : (input && input.url) || '';
+      var p = originalFetch.apply(this, arguments);
+      try {
+        if (isCartUrlLike(url)) {
+          p.then(function(){ scheduleVisibilityRecheck(50); }).catch(function(){});
+        }
+      } catch (e) {}
+      return p;
+    };
+  })();
+
+  // Hook XHR
+  (function() {
+    if (!window.XMLHttpRequest) return;
+    var origOpen = XMLHttpRequest.prototype.open;
+    var origSend = XMLHttpRequest.prototype.send;
+    XMLHttpRequest.prototype.open = function(method, url) {
+      try { this.__taskifyUrl = url; } catch (e) {}
+      return origOpen.apply(this, arguments);
+    };
+    XMLHttpRequest.prototype.send = function() {
+      try {
+        this.addEventListener('loadend', function() {
+          try {
+            if (isCartUrlLike(this.__taskifyUrl)) {
+              scheduleVisibilityRecheck(50);
+            }
+          } catch (e) {}
+        });
+      } catch (e) {}
+      return origSend.apply(this, arguments);
+    };
+  })();
+
+  // Listen to common theme events
+  ['cart:updated','cart:refresh','ajaxProduct:added','product:added','variant:changed']
+    .forEach(function(evt){
+      try { document.addEventListener(evt, function(){ scheduleVisibilityRecheck(50); }, true); } catch (e) {}
+    });
+
+  // Fallback periodic check (lightweight)
+  try {
+    setInterval(function(){ scheduleVisibilityRecheck(300); }, 5000);
+  } catch (e) {}
+  
+  // Get other elements
+  const discountOverlay = document.getElementById('discountOverlay');
+  const closeButton = document.getElementById('closeButton');
+  const remainingAmount = document.getElementById('remainingAmount');
+  const rewardPanel = document.getElementById('rewardPanel');
+  const body = document.body;
+  
+  // Get cart total from Liquid (convert from cents to currency)
+  const cartTotal = {{ cart.total_price | divided_by: 100 }};
+  
+  // Current cart total (will be updated dynamically)
+  let currentCartTotal = cartTotal;
+  
+  // Function to fetch current cart total from Cart API
+  async function fetchCurrentCartTotal() {
+    try {
+      const response = await fetch('/cart.js');
+      if (response.ok) {
+        const cartData = await response.json();
+        currentCartTotal = cartData.total_price / 100; // Convert from cents
+        window.__taskifyCartItems = Array.isArray(cartData.items) ? cartData.items : [];
+        window.__taskifyCartItemCount = cartData.item_count || 0;
+        console.log('Updated cart total:', currentCartTotal);
+
+        // Dynamic visibility re-check with real cart data
+        try {
+          const visibleNow = dynamicVisibilityCheck(cartData);
+          if (!visibleNow && __taskifyPanelInserted) {
+            // Remove panel button if it was inserted
+            try { circleButton.remove(); } catch (e) { /* ignore */ }
+            __taskifyPanelInserted = false;
+          } else if (visibleNow && !__taskifyPanelInserted) {
+            document.body.appendChild(circleButton);
+            __taskifyPanelInserted = true;
+          }
+        } catch (e) { /* ignore */ }
+        
+        // Update cart total display (only if enabled)
+        {% if show_cart_value == 'true' %}
+        const cartTotalElement = document.getElementById('cartTotal');
+        if (cartTotalElement) {
+          // Format currency
+          const formattedTotal = new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: '{{ shop.currency }}'
+          }).format(currentCartTotal);
+          
+          // Replace {cart} placeholder in cart value text
+          let cartValueText = '{{ cart_value_text }}';
+          cartValueText = cartValueText.replace(/\{cart\}/g, formattedTotal);
+          cartTotalElement.textContent = cartValueText;
+        }
+        {% endif %}
+        
+        return currentCartTotal;
+      } else {
+        console.warn('Failed to fetch cart data, using cached total');
+        return currentCartTotal;
+      }
+    } catch (error) {
+      console.error('Error fetching cart total:', error);
+      return currentCartTotal;
+    }
+  }
+  
+  // Get panel configuration from Liquid
+  const panelType = '{{ panel_type }}';
+  
+  // Get discounts from metafields (works for both manual and import modes)
+  {% if discounts %}
+    let discountsFromMetafields = {{ discounts | json }};
+    if (typeof discountsFromMetafields === 'string') {
+      try { discountsFromMetafields = JSON.parse(discountsFromMetafields); } catch (e) { console.warn('Parse metafield JSON failed', e); discountsFromMetafields = null; }
+    }
+  {% else %}
+    const discountsFromMetafields = null;
+  {% endif %}
+  
+  console.log('=== DEBUG INFO ===');
+  console.log('Panel type from metafield:', panelType);
+  console.log('Circle size:', '{{ circle_size }}');
+  console.log('Circle position:', '{{ circle_position }}');
+  console.log('Circle offset X:', '{{ circle_offset_x }}');
+  console.log('Circle offset Y:', '{{ circle_offset_y }}');
+  console.log('Circle background color:', '{{ circle_background_color }}');
+  console.log('Circle image URL:', '{{ circle_image_url }}');
+  console.log('Max panel width:', '{{ max_panel_width }}');
+  console.log('Panel margin:', '{{ panel_margin }}');
+
+  console.log('Achieved color:', '{{ achieved_color }}');
+  console.log('Locked color:', '{{ locked_color }}');
+  console.log('Progress bar color:', '{{ progress_bar_color }}');
+  console.log('Border radius:', '{{ border_radius }}');
+  console.log('Shadow intensity:', '{{ shadow_intensity }}');
+  console.log('Discount spacing:', '{{ discount_spacing }}');
+  console.log('Row gap:', '{{ row_gap }}');
+  console.log('Icon style:', '{{ icon_style }}');
+  console.log('Row height:', '{{ row_height }}px');
+  console.log('Achieved text:', '{{ achieved_text }}');
+  console.log('Missing text:', '{{ missing_text }}');
+  console.log('Show achieved text:', '{{ show_achieved_text }}');
+  console.log('Show missing amount:', '{{ show_missing_amount }}');
+  console.log('Banner text:', '{{ banner_text }}');
+  console.log('Required text:', '{{ required_text }}');
+  console.log('Highest discount text:', '{{ highest_discount_text }}');
+  console.log('Missing for discount text:', '{{ missing_for_discount_text }}');
+  console.log('No discounts text:', '{{ no_discounts_text }}');
+  console.log('Close button text:', '{{ close_button_text }}');
+  console.log('Discount order:', '{{ discount_order }}');
+  console.log('Conditions evaluation mode:', '{{ conditions_evaluation_mode }}');
+  console.log('Row separator color:', '{{ row_separator_color }}');
+  console.log('Row separator width:', '{{ row_separator_width }}px');
+  console.log('Icon size:', '{{ icon_size }}px');
+  console.log('Description font size:', '{{ description_font_size }}px');
+  console.log('Minimum amount font size:', '{{ minimum_amount_font_size }}px');
+  console.log('Scrollbar background:', '{{ scrollbar_background }}');
+  console.log('Discounts from metafields:', discountsFromMetafields);
+  console.log('Cart total:', cartTotal);
+  console.log('==================');
+  
+  let discounts = [];
+  const conditionsEvaluationMode = '{{ conditions_evaluation_mode }}';
+  // Selected conditions to enforce (from panel). If absent, default all supported to true
+  const selectedConditions = {
+    cart_total: true,
+    cart_quantity: true,
+    cart_contains_products: true,
+    cart_weight: true,
+  };
+
+  function areAllConditionsMet(discount, cartAmount) {
+    if (!discount || !Array.isArray(discount.conditions) || discount.conditions.length === 0) {
+      return cartAmount >= (discount.minimumAmount || 0);
+    }
+    const cartItems = window.__taskifyCartItems || [];
+    const cartItemProductIds = new Set(cartItems.map(it => String(it.product_id)));
+    const cartItemProductGids = new Set([...cartItemProductIds].map(id => `gid://shopify/Product/${id}`));
+    const cartQuantity = window.__taskifyCartItemCount || cartItems.reduce((sum, it) => sum + (it.quantity || 0), 0);
+
+    for (const cond of discount.conditions) {
+      const operator = (cond.operator || '').trim();
+      switch (cond.type) {
+        case 'cart_total': {
+          if (!selectedConditions.cart_total) break;
+          const threshold = parseFloat(cond.value) || 0;
+          if (operator === 'greater_than_or_equal' || operator === '>=') {
+            if (!(cartAmount >= threshold)) return false;
+          } else if (operator === 'greater_than' || operator === '>') {
+            if (!(cartAmount > threshold)) return false;
+          } else {
+            if (!(cartAmount >= threshold)) return false;
+          }
+          break;
+        }
+        case 'cart_quantity': {
+          if (!selectedConditions.cart_quantity) break;
+          const threshold = parseFloat(cond.value) || 0;
+          if (operator === 'greater_than_or_equal' || operator === '>=') {
+            if (!(cartQuantity >= threshold)) return false;
+          } else if (operator === 'greater_than' || operator === '>') {
+            if (!(cartQuantity > threshold)) return false;
+          } else if (operator === 'less_than_or_equal' || operator === '<=') {
+            if (!(cartQuantity <= threshold)) return false;
+          } else if (operator === 'less_than' || operator === '<') {
+            if (!(cartQuantity < threshold)) return false;
+          } else {
+            if (!(cartQuantity >= threshold)) return false;
+          }
+          break;
+        }
+        case 'cart_contains': {
+          if (!selectedConditions.cart_contains_products) break;
+          const raw = (cond.value || '').trim();
+          if (!raw) break;
+          const targets = raw.split(',').map(s => s.trim()).filter(Boolean);
+          const targetIds = new Set(targets);
+          const overlap = targets.some(t => cartItemProductIds.has(t) || cartItemProductGids.has(t));
+          if (operator === 'at_least_one_product') {
+            if (!overlap) return false;
+          } else if (operator === 'only_these_products') {
+            // All items must be within target set and at least one present
+            const allInSet = cartItems.every(it => targetIds.has(String(it.product_id)) || targetIds.has(`gid://shopify/Product/${it.product_id}`));
+            if (!(overlap && allInSet)) return false;
+          } else if (operator === 'no_products_from_products') {
+            if (overlap) return false;
+          }
+          break;
+        }
+        case 'cart_weight': {
+          if (!selectedConditions.cart_weight) break;
+          const threshold = parseFloat(cond.value) || 0;
+          // We do not have weight in Cart API by default; treat as not met unless min-amount only
+          // If merchant uses weight, this can be extended by reading line_item.grams
+          const totalWeightKg = (window.__taskifyCartItems || []).reduce((sum, it) => sum + ((it.grams || 0) / 1000) * (it.quantity || 0), 0);
+          if (operator === 'greater_than_or_equal' || operator === '>=') {
+            if (!(totalWeightKg >= threshold)) return false;
+          } else if (operator === 'greater_than' || operator === '>') {
+            if (!(totalWeightKg > threshold)) return false;
+          } else if (operator === 'less_than_or_equal' || operator === '<=') {
+            if (!(totalWeightKg <= threshold)) return false;
+          } else if (operator === 'less_than' || operator === '<') {
+            if (!(totalWeightKg < threshold)) return false;
+          } else if (operator === 'equals') {
+            if (!(Math.abs(totalWeightKg - threshold) < 1e-6)) return false;
+          } else if (operator === 'not_equals') {
+            if (!(Math.abs(totalWeightKg - threshold) >= 1e-6)) return false;
+          }
+          break;
+        }
+        case 'order_count': {
+          // Cart API doesn't expose customer order count on storefront; default to not met
+          // Could be passed via ScriptTag/session metafield, but for now block activation
+          return false;
+        }
+        case 'postal_code': {
+          // Postal code not available on product page; requires checkout context
+          return false;
+        }
+        case 'country': {
+          // Country not available before checkout; default to not met
+          return false;
+        }
+        case 'customer_tags': {
+          // Customer tags require customer object; not available here
+          return false;
+        }
+        case 'customer_logged_in': {
+          // Liquid could inject login status into a data attribute; default to false
+          return false;
+        }
+        default:
+          return false;
+      }
+    }
+    return true;
+  }
+  
+  // Text formatting function
+  function formatText(text) {
+    return text;
+  }
+  
+
+  
+  // Add hover effect
+  circleButton.addEventListener('mouseenter', function() {
+    this.style.transform = 'scale(1.1)';
+    this.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.25)';
+  });
+  
+  circleButton.addEventListener('mouseleave', function() {
+    this.style.transform = 'scale(1)';
+    this.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.15)';
+  });
+  
+  // Click event to show modal
+  circleButton.addEventListener('click', function() {
+    showModal();
+  });
+
+  async function showModal() {
+    discountOverlay.style.display = 'flex';
+    body.classList.add('modal-active');
+    
+    // Fetch current cart total before updating panel
+    const updatedCartTotal = await fetchCurrentCartTotal();
+    console.log('Panel opened with cart total:', updatedCartTotal);
+    
+    // Re-render discounts with updated total
+    renderDiscounts();
+    updatePanel(updatedCartTotal);
+    
+    // Auto-scroll to appropriate position after modal is shown
+    setTimeout(() => {
+      autoScrollToRelevantDiscount(updatedCartTotal);
+    }, 200);
+  }
+
+  function hideModal() {
+    discountOverlay.style.display = 'none';
+    body.classList.remove('modal-active');
+  }
+
+  if (closeButton) {
+    // Position close button within panel based on metafields
+    const closePosition = '{{ shop.metafields.taskify_panel.close_button_position.value | default: "top-right" }}';
+    const closeOffsetX = '{{ shop.metafields.taskify_panel.close_button_offset_x.value | default: "10" }}';
+    const closeOffsetY = '{{ shop.metafields.taskify_panel.close_button_offset_y.value | default: "10" }}';
+    closeButton.style.position = 'absolute';
+    if (closePosition === 'top-right') { closeButton.style.top = closeOffsetY + 'px'; closeButton.style.right = closeOffsetX + 'px'; closeButton.style.bottom = 'auto'; closeButton.style.left = 'auto'; }
+    if (closePosition === 'top-left')  { closeButton.style.top = closeOffsetY + 'px'; closeButton.style.left = closeOffsetX + 'px'; closeButton.style.bottom = 'auto'; closeButton.style.right = 'auto'; }
+    if (closePosition === 'bottom-right') { closeButton.style.bottom = closeOffsetY + 'px'; closeButton.style.right = closeOffsetX + 'px'; closeButton.style.top = 'auto'; closeButton.style.left = 'auto'; }
+    if (closePosition === 'bottom-left')  { closeButton.style.bottom = closeOffsetY + 'px'; closeButton.style.left = closeOffsetX + 'px'; closeButton.style.top = 'auto'; closeButton.style.right = 'auto'; }
+  closeButton.addEventListener('click', hideModal);
+  }
+  discountOverlay.addEventListener('click', function(e) {
+    if (e.target === discountOverlay) {
+      hideModal();
+    }
+  });
+  
+  // Auto-scroll to relevant discount position
+  function autoScrollToRelevantDiscount(cartAmount) {
+    if (discounts.length === 0) return;
+    
+    // Find applicable and next discounts
+    const applicableDiscounts = discounts.filter(d => cartAmount >= d.minimumAmount);
+    const nextDiscount = [...discounts].sort((a, b) => a.minimumAmount - b.minimumAmount)
+                                     .find(d => cartAmount < d.minimumAmount);
+    
+    setTimeout(() => {
+      if (applicableDiscounts.length > 0) {
+        // If there are achieved discounts, scroll to the highest achieved one
+        const highestAchieved = [...applicableDiscounts].sort((a, b) => b.minimumAmount - a.minimumAmount)[0];
+        const achievedElement = rewardPanel.querySelector(`[data-amount="${highestAchieved.minimumAmount}"]`);
+        if (achievedElement) {
+          achievedElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      } else if (nextDiscount) {
+        // If no discounts achieved, scroll to the next/lowest available discount
+        const nextElement = rewardPanel.querySelector(`[data-amount="${nextDiscount.minimumAmount}"]`);
+        if (nextElement) {
+          nextElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      } else {
+        // Fallback: scroll to bottom
+        rewardPanel.scrollTop = rewardPanel.scrollHeight;
+      }
+    }, 300);
+  }
+  
+  // Load discounts - first try metafields, then API if needed
+  async function loadDiscounts() {
+    try {
+      if (discountsFromMetafields && discountsFromMetafields.length > 0) {
+        // Use discounts from metafields (works for both manual and saved import data)
+        discounts = discountsFromMetafields;
+        console.log('Loaded discounts from metafields:', discounts);
+        console.log('Panel type:', panelType);
+        renderDiscounts();
+        updatePanel(currentCartTotal);
+      } else if (panelType === 'import') {
+        // Fallback to API only if no metafields and import mode
+        console.log('No metafields found, trying Shopify API...');
+        const response = await fetch('/apps/taskify/api/discounts');
+        
+        if (response.ok) {
+          const data = await response.json();
+          discounts = data;
+          console.log('Loaded discounts from API:', discounts);
+          renderDiscounts();
+          updatePanel(currentCartTotal);
+        } else {
+          console.log('Could not load discounts from API, status:', response.status);
+          showError('{{ error_loading_text }}');
+        }
+      } else {
+        showError('No discounts configured');
+      }
+    } catch (error) {
+      console.error('Error loading discounts:', error);
+      showError('Error loading discounts');
+    }
+  }
+  
+  function showError(message) {
+    rewardPanel.innerHTML = `
+      <div class="discount-level">
+        <div class="level-icon">❌</div>
+        <div class="level-text">
+          <div class="level-title">${message}</div>
+          <div class="level-requirement">{{ error_no_discounts_text }}</div>
+        </div>
+      </div>
+    `;
+    if (remainingAmount) {
+      remainingAmount.textContent = '{{ error_no_discounts_text }}';
+    }
+  }
+  
+  // Render discounts in the panel
+  function renderDiscounts() {
+    if (discounts.length === 0) {
+      rewardPanel.innerHTML = `
+        <div class="discount-level">
+          <div class="level-icon">💰</div>
+          <div class="level-text">
+            <div class="level-title">{{ error_no_discounts_text }}</div>
+            <div class="level-requirement">{{ error_no_discounts_text }}</div>
+          </div>
+        </div>
+      `;
+      return;
+    }
+    
+    // Sort discounts based on user preference - create new array to avoid mutating original
+    const discountOrder = '{{ shop.metafields.taskify_panel.discount_order.value | default: "asc" }}';
+    let customOrderRaw = {{ shop.metafields.taskify_panel.custom_discount_order.value | json }};
+    let customOrder = [];
+    try {
+      if (Array.isArray(customOrderRaw)) {
+        customOrder = customOrderRaw;
+      } else if (typeof customOrderRaw === 'string') {
+        customOrder = JSON.parse(customOrderRaw || '[]');
+      }
+    } catch (e) { customOrder = []; }
+    console.log('Rendering discounts with order:', discountOrder);
+    console.log('Original discounts:', discounts.map(d => d.minimumAmount));
+    
+    let sortedDiscounts;
+    if (discountOrder === 'custom' && Array.isArray(customOrder) && customOrder.length > 0) {
+      const indexMap = new Map(customOrder.map((id, idx) => [String(id), idx]));
+      sortedDiscounts = [...discounts].sort((a, b) => {
+        const ia = indexMap.has(String(a.id)) ? indexMap.get(String(a.id)) : Number.MAX_SAFE_INTEGER;
+        const ib = indexMap.has(String(b.id)) ? indexMap.get(String(b.id)) : Number.MAX_SAFE_INTEGER;
+        if (ia !== ib) return ia - ib;
+        // fallback by minimumAmount
+        return (a.minimumAmount || 0) - (b.minimumAmount || 0);
+      });
+    } else {
+      sortedDiscounts = [...discounts].sort((a, b) => {
+      if (discountOrder === 'desc') {
+        return b.minimumAmount - a.minimumAmount;
+      } else {
+        return a.minimumAmount - b.minimumAmount;
+      }
+    });
+    }
+    
+    console.log('Sorted discounts:', sortedDiscounts.map(d => d.minimumAmount));
+    console.log('=== DETAILED SORTING DEBUG ===');
+    console.log('Settings discountOrder value:', discountOrder);
+    console.log('Using branch:', discountOrder === 'desc' ? 'DESC (highest to lowest)' : 'ASC (lowest to highest)');
+    console.log('================================');
+    
+    rewardPanel.innerHTML = sortedDiscounts.map((discount, index) => {
+      const isAchieved = conditionsEvaluationMode === 'all_conditions'
+        ? areAllConditionsMet(discount, currentCartTotal)
+        : (currentCartTotal >= discount.minimumAmount);
+      const isLocked = !isAchieved;
+      const amountNeeded = isLocked ? (discount.minimumAmount - currentCartTotal).toFixed(2) : 0;
+
+      // Choose icon based on style and status - match the preview from the app
+      let iconContent;
+      let iconStyle = '';
+      const pct = Number.isFinite(+discount.discountPercentage)
+        ? +discount.discountPercentage
+        : (Number.isFinite(+discount.value) ? +discount.value : 0);
+
+      const baseImgUrl = (discount.imageUrl || discount.image_url || discount.iconUrl || discount.icon || '').toString().trim();
+      const lockedIconRaw = (discount.lockedIcon || discount.locked_icon || discount.lockedImageUrl || '{{ default_locked_icon }}' || '').toString().trim();
+      // Prefer lockedIcon when locked, otherwise use imageUrl
+      const chosenImgUrl = isLocked ? (lockedIconRaw || baseImgUrl) : baseImgUrl;
+      const isUrl = /^(https?:)?\/\//.test(chosenImgUrl) || chosenImgUrl.startsWith('data:');
+      console.log('Icon debug → desc:', discount.description, 'locked:', isLocked, 'img:', chosenImgUrl.slice(0, 60), 'isUrl:', isUrl);
+
+      // Build fallback per state/type
+      const fallbackUnlocked = (() => {
+        if (discount.discountType === 'free_shipping') return '🚚';
+        return '';
+      })();
+      const fallbackLocked = (lockedIconRaw && !isUrl && lockedIconRaw.length <= 4) ? lockedIconRaw : '🔒';
+
+      let iconClasses = `level-icon ${isAchieved ? 'achieved' : 'locked'}`;
+      const hasImage = isUrl;
+
+      if (hasImage) {
+        iconClasses += ' has-image';
+        const opacity = isLocked ? 0.7 : 1;
+        // Render an <img> to avoid any background-image restrictions
+        iconContent = `<img src="${chosenImgUrl}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;opacity:${opacity};"/>`;
+        iconStyle = `background-color: transparent !important;`;
+      } else {
+        // No image available → emoji fallback
+        if (isLocked) {
+          iconContent = fallbackLocked;
+          iconStyle = `
+            background-color: #c0c0c0 !important;
+            color: #666 !important;
+            font-size: ${Math.round({{ icon_size }} * 0.4)}px !important;
+          `;
+        } else {
+          iconContent = fallbackUnlocked;
+        }
+      }
+      
+      // Create individual row styles
+      let rowStyle = '';
+      if (discount.backgroundColor && discount.backgroundColor !== '#ffffff') {
+        rowStyle += `background-color: ${discount.backgroundColor} !important; `;
+      }
+      if (discount.backgroundImage) {
+        rowStyle += `background-image: url('${discount.backgroundImage}'); background-size: cover; background-position: center; background-repeat: no-repeat; `;
+      }
+      
+              return `
+        <div class="discount-level ${isAchieved ? 'achieved' : 'locked'}" data-amount="${discount.minimumAmount}" style="${rowStyle}">
+          <div class="${iconClasses}" style="${iconStyle}">${iconContent}</div>
+          <div class="level-text">
+            <div class="level-title">${discount.description}</div>
+            ${(() => {
+              const hideRequirement = (!isAchieved) && (conditionsEvaluationMode === 'all_conditions') && (!areAllConditionsMet(discount, currentCartTotal));
+              if (hideRequirement) return '';
+              return `<div class="level-requirement ${isLocked ? 'locked' : ''}">
+                ${'{{ required_text }}' ? '{{ required_text }} ' : ''}${discount.minimumAmount} {{ shop.currency }}
+                ${isAchieved && '{{ show_achieved_text }}' === 'true' ? ' {{ achieved_text }}' : ''}
+              </div>`;
+            })()}
+          </div>
+          ${isLocked && '{{ show_missing_amount }}' === 'true' ? `<div class="progress-indicator">{{ missing_text }} ${amountNeeded} {{ shop.currency }}</div>` : ''}
+        </div>
+      `;
+    }).join('');
+  }
+  
+  // Update panel based on cart amount
+  function updatePanel(cartAmount) {
+    if (discounts.length === 0) return;
+    
+    // Remove existing progress bar
+    const existingProgressBar = rewardPanel.querySelector('.progress-bar');
+    if (existingProgressBar) {
+      existingProgressBar.remove();
+    }
+    
+    // Find applicable and next discounts
+    const applicableDiscounts = discounts.filter(d => (
+      conditionsEvaluationMode === 'all_conditions'
+        ? areAllConditionsMet(d, cartAmount)
+        : (cartAmount >= d.minimumAmount)
+    ));
+    const nextDiscount = [...discounts]
+      .sort((a, b) => a.minimumAmount - b.minimumAmount)
+      .find(d => (
+        conditionsEvaluationMode === 'all_conditions'
+          ? !areAllConditionsMet(d, cartAmount)
+          : (cartAmount < d.minimumAmount)
+      ));
+    
+    // Update remaining amount text (only if element exists)
+    if (remainingAmount) {
+      if (nextDiscount) {
+        const amountNeeded = nextDiscount.minimumAmount - cartAmount;
+        const missingText = '{{ missing_for_discount_text }}'
+          .replace('{amount}', amountNeeded.toFixed(2))
+          .replace('{currency}', '{{ shop.currency }}')
+          .replace('{percentage}', nextDiscount.discountPercentage)
+          .replace('{cart_value}', cartAmount.toFixed(2));
+        remainingAmount.textContent = formatText(missingText);
+      } else if (applicableDiscounts.length > 0) {
+        const bestDiscount = [...applicableDiscounts].sort((a, b) => b.discountPercentage - a.discountPercentage)[0];
+        const highestText = '{{ highest_discount_text }}'
+          .replace('{percentage}', bestDiscount.discountPercentage)
+          .replace('{cart_value}', cartAmount.toFixed(2));
+        remainingAmount.textContent = formatText(highestText);
+      } else {
+        // No discounts in shop metafields → show the same text as for achieved, without percentage
+        const achievedTemplate = '{{ highest_discount_text }}';
+        const msg = achievedTemplate.replace('{percentage}', '');
+        remainingAmount.textContent = formatText(msg);
+      }
+    }
+    
+    // Calculate progress bar height
+    if (cartAmount > 0 && discounts.length > 0) {
+      const maxAmount = Math.max(...discounts.map(d => d.minimumAmount));
+      const progress = Math.min(cartAmount / maxAmount, 1);
+      const maxHeight = rewardPanel.scrollHeight;
+      const progressHeight = progress * maxHeight;
+      
+      setTimeout(() => {
+        const progressBar = document.createElement('div');
+        progressBar.className = 'progress-bar';
+        progressBar.style.height = `${progressHeight}px`;
+        rewardPanel.appendChild(progressBar);
+      }, 50);
+    }
+    
+
+  }
+  
+
+  
+  // Load discounts on page load
+  loadDiscounts();
+});
+</script>
+
+{% schema %}
+{
+  "name": "Discount Rewards Panel",
+  "target": "section",
+  "settings": []
+}
+{% endschema %}
+

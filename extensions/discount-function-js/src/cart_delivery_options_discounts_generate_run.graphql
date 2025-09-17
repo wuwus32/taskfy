@@ -1,0 +1,62 @@
+query CartDeliveryOptionsDiscountsGenerateRun($collectionIds: [ID!]) {
+  # Kod rabatowy wpisany przez klienta w koszyku (jeśli istnieje)
+  triggeringDiscountCode
+  # Informacje o zniżce i kombinacjach
+  discount {
+    discountClasses
+  }
+  cart {
+    lines {
+      quantity
+      cost {
+        subtotalAmount {
+          amount
+        }
+      }
+      merchandise {
+        ... on ProductVariant {
+          id
+          weight
+          product {
+            id
+            inAnyCollection(ids: $collectionIds)
+          }
+        }
+      }
+    }
+    deliveryGroups {
+      id
+      deliveryAddress {
+        zip
+        countryCode
+      }
+      deliveryOptions {
+        handle
+        cost {
+          amount
+        }
+      }
+    }
+    buyerIdentity {
+      isAuthenticated
+      customer {
+        id
+        numberOfOrders
+        hasAnyTag(tags: ["VIP", "premium", "stały-klient", "sigma", "wholesale", "employee"])
+      }
+    }
+    attribute(key: "gift_message") {
+      value
+    }
+  }
+  # Fallback - shop metafield z wszystkimi zniżkami (legacy)
+  shop {
+    metafield(namespace: "taskify_discounts", key: "active_discounts") {
+      value
+    }
+    # Lokalna data/czas względem strefy czasowej sklepu
+    localTime {
+      date
+    }
+  }
+}

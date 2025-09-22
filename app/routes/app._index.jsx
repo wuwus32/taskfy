@@ -9635,6 +9635,7 @@ export default function AppIndex() {
           The rewards panel feature is still under active development and may not work perfectly in every store setup.
           Thanks for your patience and feedback. You can hide this message with the X button — it will not appear again.
         </DismissibleBanner>
+        <Box paddingBlockStart="200"></Box>
         <Card>
           <BlockStack gap="600">
             <BlockStack gap="400">

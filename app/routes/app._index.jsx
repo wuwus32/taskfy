@@ -1,4 +1,4 @@
-﻿// REACT AND SHOPIFY POLARIS IMPORTS
+// REACT AND SHOPIFY POLARIS IMPORTS
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import {
   ChatIcon,
@@ -6,7 +6,6 @@ import {
 } from '@shopify/polaris-icons';
 
 // SHOPIFY APP BRIDGE IMPORTS
-import { useAppBridge, SaveBar } from "@shopify/app-bridge-react";
 
 // REMOVED EXTERNAL COMPONENTS - MOVED TO INLINE FUNCTIONS
 
@@ -1364,7 +1363,7 @@ export default function AppIndex() {
   const allCountries = useMemo(() => Object.values(countriesByContinent).flat(), []);
 
   // SHOPIFY APP BRIDGE SAVE BAR SETUP
-  const shopify = useAppBridge();
+  const shopify = (typeof window !== "undefined" && window.shopify) ? window.shopify : null;
 
   // Save Bar handlers
   const handleSaveBarSave = () => {
@@ -1379,20 +1378,20 @@ export default function AppIndex() {
         resetFormFields();
         setDiscountCreationMode(null);
         setEditingDiscount(null);
-    shopify.saveBar.hide('discount-save-bar');
+    try { shopify && shopify.saveBar.hide('discount-save-bar').catch(() => {}); } catch (_) {}
   };
 
   // Show/Hide Save Bar based on discount creation mode
   useEffect(() => {
-    if (shopify) {
+    try {
+      if (!shopify) return;
+      const id = 'discount-save-bar';
       if (discountCreationMode === 'order' || discountCreationMode === 'shipping' || discountCreationMode === 'edit') {
-       // console.log('Showing Save Bar for mode:', discountCreationMode);
-        shopify.saveBar.show('discount-save-bar');
+        shopify.saveBar.show(id).catch(() => {});
       } else {
-        //console.log('Hiding Save Bar');
-        shopify.saveBar.hide('discount-save-bar');
+        shopify.saveBar.hide(id).catch(() => {});
       }
-    }
+    } catch (_) {}
   }, [discountCreationMode, shopify]);
 
   // State for country selection in conditions (moved from renderConditionValue to fix React Hooks rule)
@@ -3086,9 +3085,7 @@ export default function AppIndex() {
       setDiscountCreationMode(null);
 
       // Hide Save Bar after successful save
-      if (shopify) {
-        shopify.saveBar.hide('discount-save-bar');
-      }
+      try { shopify && shopify.saveBar.hide('discount-save-bar').catch(() => {}); } catch (_) {}
 
       // Keep UI feedback minimal: rely on visual state instead of toast for success
       
@@ -3454,6 +3451,27 @@ export default function AppIndex() {
   const [previewCartValue, setPreviewCartValue] = useState(150);
   const [previewPanelWidth, setPreviewPanelWidth] = useState(600);
   const [discountToDelete, setDiscountToDelete] = useState(null);
+
+  // Preview in admin should ignore Panel Visibility Rules
+
+  // Compute effective mode for UI (fallback to enable flag if mode missing)
+  const panelVisibilityModeComputed = useMemo(() => {
+    if (panelSettings.panelVisibilityMode === 'conditional' || panelSettings.panelVisibilityMode === 'always') {
+      return panelSettings.panelVisibilityMode;
+    }
+    return panelSettings.panelVisibilityEnabled ? 'conditional' : 'always';
+  }, [panelSettings.panelVisibilityMode, panelSettings.panelVisibilityEnabled]);
+
+  useEffect(() => {
+    try {
+      console.log('PANEL_VIS_DEBUG uiSelected', {
+        computedMode: panelVisibilityModeComputed,
+        settingsMode: panelSettings.panelVisibilityMode,
+        enabled: panelSettings.panelVisibilityEnabled,
+        conditionsCount: Array.isArray(panelSettings.panelVisibilityConditions) ? panelSettings.panelVisibilityConditions.length : 0,
+      });
+    } catch (e) { /* ignore */ }
+  }, [panelVisibilityModeComputed, panelSettings.panelVisibilityMode, panelSettings.panelVisibilityEnabled, panelSettings.panelVisibilityConditions]);
   const [lastSavedSettings, setLastSavedSettings] = useState({});
   const [iconEditorOpen, setIconEditorOpen] = useState({});
   const [lockedIconEditorOpen, setLockedIconEditorOpen] = useState({});
@@ -3472,9 +3490,7 @@ export default function AppIndex() {
       setEditingDiscount(null);
       
       // Ukryj save bar jeśli jest widoczny
-      if (shopify) {
-        shopify.saveBar.hide('discount-save-bar');
-      }
+      try { shopify && shopify.saveBar.hide('discount-save-bar').catch(() => {}); } catch (_) {}
       
       
     }
@@ -3486,11 +3502,14 @@ export default function AppIndex() {
     const shouldLock = isEditing;
     setNavigationLocked(shouldLock);
     if (shopify) {
-      if (shouldLock) {
-        shopify.saveBar.show('discount-save-bar');
-      } else {
-        shopify.saveBar.hide('discount-save-bar');
-      }
+      try {
+        const id = 'discount-save-bar';
+        if (shouldLock) {
+          shopify && shopify.saveBar.show(id).catch(() => {});
+        } else {
+          shopify && shopify.saveBar.hide(id).catch(() => {});
+        }
+      } catch (_) {}
     }
   }, [editingDiscount, discountCreationMode, shopify]);
 
@@ -3539,13 +3558,15 @@ export default function AppIndex() {
     
   // Show/hide panel settings save bar
   useEffect(() => {
-    if (shopify) {
+    try {
+      if (!shopify) return;
+      const id = 'panel-save-bar';
       if (hasUnsavedChanges && activeView === "panel-settings") {
-        shopify.saveBar.show('panel-save-bar');
+        shopify.saveBar.show(id).catch(() => {});
       } else {
-        shopify.saveBar.hide('panel-save-bar');
+        shopify.saveBar.hide(id).catch(() => {});
       }
-    }
+    } catch (_) {}
   }, [hasUnsavedChanges, activeView, shopify]);
 
 
@@ -3622,28 +3643,26 @@ export default function AppIndex() {
     const updated = { ...panelSettings, customDiscountOrder: currentOrder };
     setPanelSettings(updated);
     setHasUnsavedChanges(true);
+    try { await savePanelSettings(updated); } catch (e) { console.error(e); }
   }, [panelSettings, sortedPanelDiscounts]);
   //TWORZY TABELE ZE ZNIZKAMI
   const discountRows = sortedPanelDiscounts.map(discount => [
-    // Drag / move controls (only visible in custom order mode)
-    sortBy === 'custom' ? (
-      <InlineStack key={`move-${discount.id}`} gap="100">
-        <Button size="slim" variant="secondary" onClick={() => moveDiscountInCustomOrder(discount.id, -1)}>↑</Button>
-        <Button size="slim" variant="secondary" onClick={() => moveDiscountInCustomOrder(discount.id, 1)}>↓</Button>
+    (
+      <InlineStack key={`desc-${discount.id}`} align="space-between" gap="200">
+        <Text>{discount.description}</Text>
+        {sortBy === 'custom' && (
+          <InlineStack gap="100">
+            <Button size="slim" variant="secondary" onClick={() => moveDiscountInCustomOrder(discount.id, -1)}>↑</Button>
+            <Button size="slim" variant="secondary" onClick={() => moveDiscountInCustomOrder(discount.id, 1)}>↓</Button>
+          </InlineStack>
+        )}
       </InlineStack>
-    ) : (
-      <span key={`spacer-${discount.id}`} />
     ),
-    <Checkbox
-      key={`checkbox-${discount.id}`}
-      checked={selectedDiscounts.includes(discount.id)}
-      onChange={() => toggleDiscountSelection(discount.id)}
-    />,
-    discount.description,
-    discount.discountType === 'free_shipping' ? 'Free shipping' : 
-    discount.discountValueType === 'fixed_amount' ? `${discount.discountAmount} ${shopData?.currencyCode || 'USD'}` : 
-    `${discount.discountPercentage}%`,
-    // Icon column with editor
+    <span key={`val-${discount.id}`}>
+      {discount.discountType === 'free_shipping' ? 'Free shipping' : 
+      discount.discountValueType === 'fixed_amount' ? `${discount.discountAmount} ${shopData?.currencyCode || 'USD'}` : 
+      `${discount.discountPercentage}%`}
+    </span>,
     (
       <BlockStack key={`icon-col-${discount.id}`} gap="150">
         <InlineStack gap="200" blockAlign="center">
@@ -3662,31 +3681,26 @@ export default function AppIndex() {
         </InlineStack>
         {iconEditorOpen[discount.id] && (
           <BlockStack gap="150">
-            <DropZone
-              accept="image/*"
-              type="image"
-              allowMultiple={false}
-              onDrop={async (files) => {
-                const file = files?.[0];
-                if (!file) return;
-                const toBase64 = (f) => new Promise((resolve, reject) => {
-                  const reader = new FileReader();
-                  reader.onload = () => resolve(reader.result);
-                  reader.onerror = reject;
-                  reader.readAsDataURL(f);
-                });
-                try {
-                  const base64Data = await toBase64(file);
-                  const updatedDiscounts = panelDiscounts.map(d => d.id === discount.id ? { ...d, imageUrl: base64Data } : d);
-                  setPanelDiscounts(updatedDiscounts);
-                  setPanelSettings(prev => ({ ...prev, discounts: updatedDiscounts }));
-                  await saveIndividualDiscounts(updatedDiscounts);
-                  setHasUnsavedChanges(true);
-                } catch (e) {
-                  console.error('Icon upload error:', e);
-                }
-              }}
-            >
+            <DropZone accept="image/*" type="image" allowMultiple={false} onDrop={async (files) => {
+              const file = files?.[0];
+              if (!file) return;
+              const toBase64 = (f) => new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(f);
+              });
+              try {
+                const base64Data = await toBase64(file);
+                const updatedDiscounts = panelDiscounts.map(d => d.id === discount.id ? { ...d, imageUrl: base64Data } : d);
+                setPanelDiscounts(updatedDiscounts);
+                setPanelSettings(prev => ({ ...prev, discounts: updatedDiscounts }));
+                await saveIndividualDiscounts(updatedDiscounts);
+                setHasUnsavedChanges(true);
+              } catch (e) {
+                console.error('Icon upload error:', e);
+              }
+            }}>
               <DropZone.FileUpload />
             </DropZone>
             <InlineStack gap="200" align="start">
@@ -3702,24 +3716,17 @@ export default function AppIndex() {
                 </Button>
               )}
             </InlineStack>
-            <TextField
-              label="Or paste image URL"
-              value={discount.imageUrl && !discount.imageUrl.startsWith('data:') ? discount.imageUrl : ''}
-              onChange={async (value) => {
-                const updatedDiscounts = panelDiscounts.map(d => d.id === discount.id ? { ...d, imageUrl: value } : d);
-                setPanelDiscounts(updatedDiscounts);
-                setPanelSettings(prev => ({ ...prev, discounts: updatedDiscounts }));
-                await saveIndividualDiscounts(updatedDiscounts);
-                setHasUnsavedChanges(true);
-              }}
-              placeholder="https://cdn.shopify.com/s/files/xxx/icon.png"
-              helpText="PNG recommended; direct URL or upload above"
-            />
+            <TextField label="Or paste image URL" value={discount.imageUrl && !discount.imageUrl.startsWith('data:') ? discount.imageUrl : ''} onChange={async (value) => {
+              const updatedDiscounts = panelDiscounts.map(d => d.id === discount.id ? { ...d, imageUrl: value } : d);
+              setPanelDiscounts(updatedDiscounts);
+              setPanelSettings(prev => ({ ...prev, discounts: updatedDiscounts }));
+              await saveIndividualDiscounts(updatedDiscounts);
+              setHasUnsavedChanges(true);
+            }} placeholder="https://cdn.shopify.com/s/files/xxx/icon.png" helpText="PNG recommended; direct URL or upload above" />
           </BlockStack>
         )}
       </BlockStack>
     ),
-    // Lock Icon column (lockedIcon) with editor
     (
       <BlockStack key={`lock-icon-col-${discount.id}`} gap="150">
         <InlineStack gap="200" blockAlign="center">
@@ -3728,13 +3735,7 @@ export default function AppIndex() {
             if (!lockedIcon) return null;
             if (lockedIcon.startsWith('http') || lockedIcon.startsWith('data:')) {
               return (
-                <img 
-                  key={`lock-img-${discount.id}`}
-                  src={lockedIcon} 
-                  alt="Locked icon"
-                  style={{ width: '40px', height: '40px', borderRadius: '4px', objectFit: 'cover' }}
-                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                />
+                <img key={`lock-img-${discount.id}`} src={lockedIcon} alt="Locked icon" style={{ width: '40px', height: '40px', borderRadius: '4px', objectFit: 'cover' }} onError={(e) => { e.currentTarget.style.display = 'none'; }} />
               );
             }
             return <Text key={`lock-emoji-${discount.id}`} tone="subdued">{lockedIcon}</Text>;
@@ -3745,31 +3746,26 @@ export default function AppIndex() {
         </InlineStack>
         {lockedIconEditorOpen[discount.id] && (
           <BlockStack gap="150">
-            <DropZone
-              accept="image/*"
-              type="image"
-              allowMultiple={false}
-              onDrop={async (files) => {
-                const file = files?.[0];
-                if (!file) return;
-                const toBase64 = (f) => new Promise((resolve, reject) => {
-                  const reader = new FileReader();
-                  reader.onload = () => resolve(reader.result);
-                  reader.onerror = reject;
-                  reader.readAsDataURL(f);
-                });
-                try {
-                  const base64Data = await toBase64(file);
-                  const updatedDiscounts = panelDiscounts.map(d => d.id === discount.id ? { ...d, lockedIcon: base64Data } : d);
-                  setPanelDiscounts(updatedDiscounts);
-                  setPanelSettings(prev => ({ ...prev, discounts: updatedDiscounts }));
-                  await saveIndividualDiscounts(updatedDiscounts);
-                  setHasUnsavedChanges(true);
-                } catch (e) {
-                  console.error('Locked icon upload error:', e);
-                }
-              }}
-            >
+            <DropZone accept="image/*" type="image" allowMultiple={false} onDrop={async (files) => {
+              const file = files?.[0];
+              if (!file) return;
+              const toBase64 = (f) => new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(f);
+              });
+              try {
+                const base64Data = await toBase64(file);
+                const updatedDiscounts = panelDiscounts.map(d => d.id === discount.id ? { ...d, lockedIcon: base64Data } : d);
+                setPanelDiscounts(updatedDiscounts);
+                setPanelSettings(prev => ({ ...prev, discounts: updatedDiscounts }));
+                await saveIndividualDiscounts(updatedDiscounts);
+                setHasUnsavedChanges(true);
+              } catch (e) {
+                console.error('Locked icon upload error:', e);
+              }
+            }}>
               <DropZone.FileUpload />
             </DropZone>
             <InlineStack gap="200" align="start">
@@ -3785,38 +3781,31 @@ export default function AppIndex() {
                 </Button>
               )}
             </InlineStack>
-            <TextField
-              label="Or paste locked image URL"
-              value={discount.lockedIcon && !discount.lockedIcon.startsWith('data:') ? discount.lockedIcon : ''}
-              onChange={async (value) => {
-                const updatedDiscounts = panelDiscounts.map(d => d.id === discount.id ? { ...d, lockedIcon: value } : d);
-                setPanelDiscounts(updatedDiscounts);
-                setPanelSettings(prev => ({ ...prev, discounts: updatedDiscounts }));
-                await saveIndividualDiscounts(updatedDiscounts);
-                setHasUnsavedChanges(true);
-              }}
-              placeholder="https://cdn.shopify.com/s/files/xxx/locked-icon.png"
-              helpText="PNG recommended; direct URL or upload above"
-            />
+            <TextField label="Or paste locked image URL" value={discount.lockedIcon && !discount.lockedIcon.startsWith('data:') ? discount.lockedIcon : ''} onChange={async (value) => {
+              const updatedDiscounts = panelDiscounts.map(d => d.id === discount.id ? { ...d, lockedIcon: value } : d);
+              setPanelDiscounts(updatedDiscounts);
+              setPanelSettings(prev => ({ ...prev, discounts: updatedDiscounts }));
+              await saveIndividualDiscounts(updatedDiscounts);
+              setHasUnsavedChanges(true);
+            }} placeholder="https://cdn.shopify.com/s/files/xxx/locked-icon.png" helpText="PNG recommended; direct URL or upload above" />
           </BlockStack>
         )}
       </BlockStack>
     ),
-    <ChoiceList
-      title="When should the panel be visible?"
-      choices={[
-        { label: 'Always', value: 'always' },
-        { label: 'When conditions are met', value: 'conditional' }
-      ]}
-      selected={discount.visibleInPanel === false ? ['always'] : ['conditional']}
-      onChange={(value) => {
-        const conditional = value.includes('conditional');
-        const updatedDiscounts = panelDiscounts.map(d => d.id === discount.id ? { ...d, visibleInPanel: conditional } : d);
-        setPanelDiscounts(updatedDiscounts);
-        setPanelSettings(prev => ({ ...prev, discounts: updatedDiscounts }));
-        setHasUnsavedChanges(true);
-      }}
-    />
+    (
+      <Checkbox
+        key={`vis-${discount.id}`}
+        label=""
+        checked={discount.visibleInPanel !== false}
+        onChange={(checked) => {
+          const updatedDiscounts = panelDiscounts.map(d => d.id === discount.id ? { ...d, visibleInPanel: !!checked } : d);
+          setPanelDiscounts(updatedDiscounts);
+          setPanelSettings(prev => ({ ...prev, discounts: updatedDiscounts }));
+          setHasUnsavedChanges(true);
+          saveIndividualDiscounts(updatedDiscounts);
+        }}
+      />
+    )
   ]);
 
 
@@ -4505,6 +4494,7 @@ export default function AppIndex() {
         .filter(discount => discount.isActive && discount.visibleInPanel !== false)
         .map(discount => ({
           id: discount.id,
+          createdAt: discount.createdAt || discount.created_at || null,
           title: discount.name || discount.description,
           description: discount.description,
           // Przekaż metodę aktywacji i kod, aby funkcja mogła filtrować po kodzie
@@ -4724,7 +4714,6 @@ export default function AppIndex() {
       showToast('Error updating discount visibility: ' + error.message);
     }
   }, [panelDiscounts, selectedDiscounts, saveIndividualDiscounts]);
-
   // LOADING PANEL SETTINGS FROM SHOPIFY METAFIELDS
   const loadPanelSettings = async () => {
     try {
@@ -4735,11 +4724,14 @@ export default function AppIndex() {
           shop {
             id
             currencyCode
-            metafields(first: 100, namespace: "taskify_panel") {
+            panelVisibilityMode: metafield(namespace: "taskify_panel", key: "panel_visibility_mode") { value }
+            panelVisibilityEnabled: metafield(namespace: "taskify_panel", key: "panel_visibility_enabled") { value }
+            panelVisibilityConditions: metafield(namespace: "taskify_panel", key: "panel_visibility_conditions") { value type }
+            metafields(first: 250, namespace: "taskify_panel") {
               edges {
                 node {
                   key
-              value
+                  value
                   type
                 }
               }
@@ -5060,11 +5052,14 @@ export default function AppIndex() {
             catch { updatedSettings.panelVisibilityCountries = []; }
             break;
           case 'panel_visibility_mode':
-            updatedSettings.panelVisibilityMode = node.value || 'always';
+            updatedSettings.panelVisibilityMode = (node.value || 'always').toString().trim().toLowerCase();
             break;
           case 'panel_visibility_conditions':
             try { updatedSettings.panelVisibilityConditions = JSON.parse(node.value || '[]'); }
             catch { updatedSettings.panelVisibilityConditions = []; }
+            break;
+          case 'sort_by_selection':
+            updatedSettings.sortBySelection = node.value || '';
             break;
             
           // Border Glow settings
@@ -5152,6 +5147,22 @@ export default function AppIndex() {
         }
       });
 
+      // Merge direct-access metafields (handles pagination cases)
+      try {
+        const pm = data.shop?.panelVisibilityMode?.value;
+        const pe = data.shop?.panelVisibilityEnabled?.value;
+        const pc = data.shop?.panelVisibilityConditions?.value;
+        if (typeof pm === 'string' && pm.trim()) {
+          updatedSettings.panelVisibilityMode = pm.toString().trim().toLowerCase();
+        }
+        if (typeof pe === 'string') {
+          updatedSettings.panelVisibilityEnabled = pe === 'true';
+        }
+        if (typeof pc === 'string' && pc.trim()) {
+          try { updatedSettings.panelVisibilityConditions = JSON.parse(pc); } catch { /* ignore */ }
+        }
+      } catch (e) { /* ignore */ }
+
       // Jeżeli brak tekstów (usunięte), ustaw puste stringi w stanie,
       // aby inputy/preview były puste (preview ma fallback na spację przy renderze)
       const hasHeaderTextMetafield = metafields.some(({ node }) => node.key === 'cart_value_text');
@@ -5171,13 +5182,39 @@ export default function AppIndex() {
         updatedSettings.footerContent = '';
       }
       
-      setPanelSettings(updatedSettings);
-      // Ustaw sortBy z metadanych (utrzymaj 'custom' po odświeżeniu)
-      try {
-        if (updatedSettings.discountOrder === 'custom') {
-          setSortBy('custom');
+      // Fallback: jeśli brak 'panel_visibility_mode', wywnioskuj z 'panel_visibility_enabled'
+      const hasPanelVisibilityMode = metafields.some(({ node }) => node.key === 'panel_visibility_mode');
+      if (!hasPanelVisibilityMode) {
+        if (typeof updatedSettings.panelVisibilityEnabled === 'boolean') {
+          updatedSettings.panelVisibilityMode = updatedSettings.panelVisibilityEnabled ? 'conditional' : 'always';
         }
-      } catch (e) {}
+      }
+      // Heurystyka: jeśli są warunki i włączone reguły, wymuś 'conditional'
+      if (
+        updatedSettings.panelVisibilityMode !== 'conditional' &&
+        updatedSettings.panelVisibilityEnabled === true &&
+        Array.isArray(updatedSettings.panelVisibilityConditions) &&
+        updatedSettings.panelVisibilityConditions.length > 0
+      ) {
+        updatedSettings.panelVisibilityMode = 'conditional';
+      }
+      
+      setPanelSettings(updatedSettings);
+      try {
+        console.log('PANEL_VIS_DEBUG loaded', {
+          modeRaw: updatedSettings.panelVisibilityMode,
+          enabledRaw: updatedSettings.panelVisibilityEnabled,
+          conditionsRaw: updatedSettings.panelVisibilityConditions,
+        });
+      } catch (e) { /* ignore */ }
+      // Ustaw sortBy z metadanych (utrzymaj 'custom' po odświeżeniu)
+  try {
+    if (updatedSettings.sortBySelection) {
+      setSortBy(updatedSettings.sortBySelection);
+    } else if (updatedSettings.discountOrder) {
+      setSortBy(updatedSettings.discountOrder);
+    }
+  } catch (e) {}
       setLastSavedSettings(updatedSettings); // Save as last saved settings
       
       // Jeśli start guide expanded nie był ustawiony w metafields, ustaw domyślną wartość
@@ -5316,7 +5353,6 @@ export default function AppIndex() {
     // Default: require non-empty value
     return condition.value !== undefined && String(condition.value).trim() !== '';
   };
-
   const savePanelSettings = async (settingsToSave) => {
     console.log("🔄 savePanelSettings function called with:", settingsToSave);
     
@@ -5420,13 +5456,16 @@ export default function AppIndex() {
         { field: 'minimumAmountFontSize', key: 'minimum_amount_font_size' },
         { field: 'iconStyle', key: 'icon_style' },
         { field: 'discountOrder', key: 'discount_order' },
+        { field: 'sortBySelection', key: 'sort_by_selection' },
         { field: 'rowSeparatorWidth', key: 'row_separator_width' },
         { field: 'topOffset', key: 'top_offset' },
         // Panel Visibility
         { field: 'panelVisibilityEnabled', key: 'panel_visibility_enabled' },
         { field: 'panelVisibilityLoggedIn', key: 'panel_visibility_logged_in' },
         { field: 'panelVisibilityCountries', key: 'panel_visibility_countries' },
+        // Save explicit mode AND enable flag for compatibility with older themes
         { field: 'panelVisibilityMode', key: 'panel_visibility_mode' },
+        { field: 'panelVisibilityEnabled', key: 'panel_visibility_enabled' },
         { field: 'panelVisibilityConditions', key: 'panel_visibility_conditions' },
         // Border Glow settings
         { field: 'borderGlow', key: 'border_glow' },
@@ -5506,6 +5545,7 @@ export default function AppIndex() {
               // Check changes in boolean fields
       const booleanFields = [
         { field: 'panelEnabled', key: 'panel_enabled' },
+        { field: 'panelVisibilityEnabled', key: 'panel_visibility_enabled' },
         { field: 'showFooter', key: 'show_footer' },
         { field: 'showHighestDiscountMessage', key: 'show_highest_discount_message' },
         { field: 'showAchievedText', key: 'show_achieved_text' },
@@ -5553,16 +5593,6 @@ export default function AppIndex() {
             value: currentOrderString,
             type: "json"
           });
-          // Force discount_order to 'custom' when providing a custom order
-          if (settingsToSave.discountOrder !== 'custom') {
-            changedFields.push({
-              ownerId: shopData.id,
-              namespace: "taskify_panel",
-              key: "discount_order",
-              value: 'custom',
-              type: "single_line_text_field"
-            });
-          }
         }
       } catch (e) { /* ignore */ }
       
@@ -5742,7 +5772,7 @@ export default function AppIndex() {
         console.log("💾 Calling savePanelSettings with:", panelSettings);
         await savePanelSettings(panelSettings);
         console.log("✅ savePanelSettings completed successfully");
-        shopify.saveBar.hide('panel-save-bar');
+        try { shopify && shopify.saveBar.hide('panel-save-bar').catch(() => {}); } catch (_) {}
       } catch (error) {
         console.error('❌ Save error:', error);
         showToast('Error saving panel settings: ' + error.message);
@@ -5755,7 +5785,7 @@ export default function AppIndex() {
         await loadPanelSettings();
         setHasUnsavedChanges(false);
         
-      shopify.saveBar.hide('panel-save-bar');
+      try { shopify && shopify.saveBar.hide('panel-save-bar').catch(() => {}); } catch (_) {}
       } catch (error) {
         console.error('Discard error:', error);
       }
@@ -8052,7 +8082,7 @@ export default function AppIndex() {
             <Box padding="400">
               {panelDiscounts && panelDiscounts.length > 0 ? (
                 <DataTable
-                  columnContentTypes={['text', 'text', 'text', 'text', 'text', 'text']}
+                  columnContentTypes={['text', 'text', 'text', 'text', 'text']}
                   headings={['Date of creation', 'Discount Type', 'Discount Name', 'Discount Conditions', 'Settings']}
                   rows={getSortedDiscounts(panelDiscounts.slice(0, 5), sortOption).map((discount, index) => [
                     (
@@ -8267,9 +8297,7 @@ export default function AppIndex() {
               resetFormFields(); // Resetuj także warunki
               
               // Hide Save Bar after successful edit
-              if (shopify) {
-                shopify.saveBar.hide('discount-save-bar');
-              }
+              try { shopify && shopify.saveBar.hide('discount-save-bar').catch(() => {}); } catch (_) {}
               
               // Keep: success toast after updating a discount
               showToast('Discount has been updated!');
@@ -9348,16 +9376,34 @@ export default function AppIndex() {
                        
                       
                         <Select
-                          label="Sortuj"
-                          labelHidden
+                          label="Sort by"
                           options={[
-                            { label: "Newest", value: "newest" },
-                            { label: "Oldest", value: "oldest" },
-                            { label: "Price: ascending", value: "amount_asc" },
-                            { label: "Price: descending", value: "amount_desc" }
+                            { label: 'Newest', value: 'newest' },
+                            { label: 'Oldest', value: 'oldest' },
+                            { label: 'Highest amount', value: 'amount_high' },
+                            { label: 'Lowest amount', value: 'amount_low' },
+                            { label: 'Highest discount', value: 'discount_high' },
+                            { label: 'Lowest discount', value: 'discount_low' },
+                            { label: 'Alphabetical', value: 'alphabetical' },
+                            { label: 'Custom Order', value: 'custom' }
                           ]}
-                          value={sortOption}
-                          onChange={setSortOption}
+                          value={sortBy}
+                          onChange={async (value) => {
+                            setSortBy(value);
+                            try {
+                              if (value === 'custom') {
+                                await initializeCustomOrderIfEmpty();
+                                const updated = { ...panelSettings, sortBySelection: 'custom' };
+                                setPanelSettings(updated);
+                                await savePanelSettings(updated);
+                              } else {
+                                // tylko utrwalamy wybór sortowania, bez dotykania customDiscountOrder
+                                const updated = { ...panelSettings, sortBySelection: value };
+                                setPanelSettings(updated);
+                                await savePanelSettings(updated);
+                              }
+                            } catch (e) { /* ignore */ }
+                          }}
                         />
                       </>
                     )}
@@ -9977,14 +10023,14 @@ export default function AppIndex() {
                                 { label: 'Always', value: 'always' },
                                 { label: 'When conditions are met', value: 'conditional' }
                               ]}
-                              selected={panelSettings.panelVisibilityMode === 'conditional' ? ['conditional'] : ['always']}
+                              selected={panelVisibilityModeComputed === 'conditional' ? ['conditional'] : ['always']}
                               onChange={(value) => {
                                 const conditional = value.includes('conditional');
                                 setPanelSettings(prev => ({ ...prev, panelVisibilityMode: conditional ? 'conditional' : 'always', panelVisibilityEnabled: conditional }));
                                 setHasUnsavedChanges(true);
                               }}
                             />
-                            {panelSettings.panelVisibilityMode === 'conditional' && (
+                            {panelVisibilityModeComputed === 'conditional' && (
                               <InlineStack align="space-between">
                               
                                 <Button
@@ -10005,7 +10051,7 @@ export default function AppIndex() {
                                 </Button>
                               </InlineStack>
                             )}
-                            {panelSettings.panelVisibilityMode === 'conditional' && (
+                            {panelVisibilityModeComputed === 'conditional' && (
                               <BlockStack gap="300">
                                   <BlockStack gap="300">
 
@@ -10451,23 +10497,7 @@ export default function AppIndex() {
                {selectedTab === 2 && (
                  <BlockStack gap="500">
                    {/* Current Discounts Settings */}
-                   <BlockStack gap="200">
-                     <InlineStack gap="300" align="start">
-                       <Select
-                         label="Discount Levels Order"
-                         options={[
-                           { label: 'From lowest to highest (default)', value: 'asc' },
-                           { label: 'From highest to lowest', value: 'desc' }
-                         ]}
-                         value={panelSettings.discountOrder}
-                         onChange={(value) => {
-                           setPanelSettings(prev => ({ ...prev, discountOrder: value }));
-                           setHasUnsavedChanges(true);
-                         }}
-                         helpText="Choose how discount levels are ordered in the panel"
-                       />
-                     </InlineStack>
-                   </BlockStack>
+                 
                    <Card>
                      <BlockStack gap="400">
                        <InlineStack align="space-between">
@@ -10484,9 +10514,9 @@ export default function AppIndex() {
                            </Button>
                          </InlineStack>
                        </InlineStack>
-                       <Text tone="subdued">
-                         Control which discounts are visible in your extension panel. Use checkboxes in "Visible in Panel" column to show/hide discounts.
-                       </Text>
+                      <Text tone="subdued">
+                        Toggle visibility per discount using the "Visible in Panel" column.
+                      </Text>
                        
                        {/* Search and Filter Section */}
                        <BlockStack gap="300">
@@ -10526,63 +10556,49 @@ export default function AppIndex() {
                              value={sortBy}
                              onChange={async (value) => {
                                setSortBy(value);
-                               if (value === 'custom') {
-                                 await initializeCustomOrderIfEmpty();
-                               }
+                               try {
+                                 if (value === 'custom') {
+                                   await initializeCustomOrderIfEmpty();
+                                   const updated = { ...panelSettings, sortBySelection: 'custom' };
+                                   setPanelSettings(updated);
+                                   await savePanelSettings(updated);
+                                 } else {
+                                   // dla zwykłych opcji zapisz jedynie wybór sortowania
+                                   const updated = { ...panelSettings, sortBySelection: value };
+                                   setPanelSettings(updated);
+                                   await savePanelSettings(updated);
+                                 }
+                               } catch (_) {}
                              }}
                            />
                          </InlineStack>
 
                          {/* Bulk Actions Bar */}
-                         {showBulkActions && (
-                           <Card background="bg-surface-info">
-                             <InlineStack align="space-between">
-                               <Text variant="bodyMd" fontWeight="bold">
-                                 {selectedDiscounts.length} discount{selectedDiscounts.length !== 1 ? 's' : ''} selected
-                               </Text>
-                               <ButtonGroup>
-                                 <Button 
-                                   onClick={() => setSelectedDiscounts([])}
-                                   size="slim"
-                                 >
-                                   Clear selection
-                                 </Button>
-                                 <Button 
-                                   onClick={async () => await bulkToggleVisibility(true)}
-                                   size="slim"
-                                 >
-                                   👁️ Show selected in panel
-                                 </Button>
-                                 <Button 
-                                   onClick={async () => await bulkToggleVisibility(false)}
-                                   size="slim"
-                                 >
-                                   🙈 Hide selected from panel
-                                 </Button>
-                               </ButtonGroup>
-                             </InlineStack>
-                           </Card>
-                         )}
+                        {false && showBulkActions && (
+                          <Card background="bg-surface-info">
+                            <InlineStack align="space-between">
+                              <Text variant="bodyMd" fontWeight="bold">
+                                {selectedDiscounts.length} discount{selectedDiscounts.length !== 1 ? 's' : ''} selected
+                              </Text>
+                              <ButtonGroup>
+                                <Button onClick={() => setSelectedDiscounts([])} size="slim">Clear selection</Button>
+                              </ButtonGroup>
+                            </InlineStack>
+                          </Card>
+                        )}
                        </BlockStack>
                        
                        {sortedPanelDiscounts.length > 0 ? (
                          <BlockStack gap="300">
-                           {/* Select All Checkbox */}
-                           <InlineStack gap="300">
-                             <Checkbox
-                               label={`Select all ${filteredDiscounts.length} discount${filteredDiscounts.length !== 1 ? 's' : ''}`}
-                               checked={selectedDiscounts.length === filteredDiscounts.length && filteredDiscounts.length > 0}
-                               indeterminate={selectedDiscounts.length > 0 && selectedDiscounts.length < filteredDiscounts.length}
-                               onChange={toggleAllDiscounts}
-                             />
-                           </InlineStack>
+                          {/* Row selection removed */}
 
-                           <DataTable
-                             columnContentTypes={['text', 'text', 'text', 'text', 'text', 'text']}
-                             headings={['', '', 'Description', 'Discount', 'Icon', 'Lock Icon', 'Visible in Panel']}
-                             rows={discountRows}
-                             truncate
-                           />
+                          <DataTable
+                            columnContentTypes={[
+                    'text', 'text', 'text', 'text', 'text']}
+                            headings={[        'Name', 'Discount', 'Icon', 'Lock Icon', 'Visible in Panel']}
+                            rows={discountRows}
+                            truncate
+                          />
                          </BlockStack>
                        ) : searchQuery || filterStatus !== 'all' ? (
                          <EmptyState
@@ -11899,9 +11915,9 @@ export default function AppIndex() {
               <Text as="h2" variant="headingLg">
               👁️ Preview - How the panel looks in store
                </Text>
-                <helpText>
+                <Text tone="subdued">
                    Most of the settings are not visible in the preview, to see them you must open shop theme editor.
-                  </helpText>
+                </Text>
               </BlockStack>
               <ButtonGroup>
                 {previewExpanded !== null && ( // Pokaż przycisk tylko gdy stan jest załadowany
@@ -12077,7 +12093,26 @@ export default function AppIndex() {
                             return (a.minimumAmount || 0) - (b.minimumAmount || 0);
                           });
                         } else {
-                          visibleDiscounts = [...visibleDiscounts].sort((a, b) => panelSettings.discountOrder === 'desc' ? b.minimumAmount - a.minimumAmount : a.minimumAmount - b.minimumAmount);
+                          visibleDiscounts = [...visibleDiscounts].sort((a, b) => {
+                            switch (sortBy) {
+                              case 'newest':
+                                return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+                              case 'oldest':
+                                return new Date(a.createdAt || 0) - new Date(b.createdAt || 0);
+                              case 'amount_high':
+                                return (b.minimumAmount || 0) - (a.minimumAmount || 0);
+                              case 'amount_low':
+                                return (a.minimumAmount || 0) - (b.minimumAmount || 0);
+                              case 'discount_high':
+                                return (b.discountPercentage || 0) - (a.discountPercentage || 0);
+                              case 'discount_low':
+                                return (a.discountPercentage || 0) - (b.discountPercentage || 0);
+                              case 'alphabetical':
+                                return String(a.description || '').localeCompare(String(b.description || ''));
+                              default:
+                                return 0;
+                            }
+                          });
                         }
                         return visibleDiscounts.map((discount, index) => {
                           const isAchieved = previewCartValue >= discount.minimumAmount;
@@ -12097,6 +12132,7 @@ export default function AppIndex() {
                                 transition: 'all 0.3s ease'
                               }}
                             >
+                              {discount.imageUrl ? (
                               <Box style={{ 
                                 width: `${panelSettings.iconSize || 40}px`, 
                                 height: `${panelSettings.iconSize || 40}px`, 
@@ -12180,6 +12216,7 @@ export default function AppIndex() {
                                   );
                                 })()}
                               </Box>
+                              ) : null}
 
                               <Box style={{ flex: 1 }}>
                                 <Text 
@@ -13067,7 +13104,26 @@ export default function AppIndex() {
                           return (a.minimumAmount || 0) - (b.minimumAmount || 0);
                         });
                       } else {
-                        visibleDiscounts = [...visibleDiscounts].sort((a, b) => panelSettings.discountOrder === 'desc' ? b.minimumAmount - a.minimumAmount : a.minimumAmount - b.minimumAmount);
+                        visibleDiscounts = [...visibleDiscounts].sort((a, b) => {
+                          switch (sortBy) {
+                            case 'newest':
+                              return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+                            case 'oldest':
+                              return new Date(a.createdAt || 0) - new Date(b.createdAt || 0);
+                            case 'amount_high':
+                              return (b.minimumAmount || 0) - (a.minimumAmount || 0);
+                            case 'amount_low':
+                              return (a.minimumAmount || 0) - (b.minimumAmount || 0);
+                            case 'discount_high':
+                              return (b.discountPercentage || 0) - (a.discountPercentage || 0);
+                            case 'discount_low':
+                              return (a.discountPercentage || 0) - (b.discountPercentage || 0);
+                            case 'alphabetical':
+                              return String(a.description || '').localeCompare(String(b.description || ''));
+                            default:
+                              return 0;
+                          }
+                        });
                       }
                       return visibleDiscounts.map((discount, index) => {
                         const isAchieved = previewCartValue >= discount.minimumAmount;
@@ -13246,15 +13302,7 @@ export default function AppIndex() {
         </Modal.Section>
       </Modal>
 
-      {/* SaveBar Components for Shopify Header */}
-      <SaveBar id="discount-save-bar">
-        <button variant="primary" onClick={handleSaveBarSave}>
-          Save discount
-        </button>
-        <button onClick={handleSaveBarDiscard}>
-          Cancel
-        </button>
-      </SaveBar>
+      {/* SaveBar removed: only available in embedded context */}
 
 
     </Frame>
